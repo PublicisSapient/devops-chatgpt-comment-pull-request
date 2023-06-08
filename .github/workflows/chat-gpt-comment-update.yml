@@ -1,0 +1,79 @@
+name: Add Comment to Pull Request
+
+on:
+  pull_request:
+  
+jobs:
+  chatgpt_add_comment:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install openai
+          pip install PyGithub
+
+      - name: Generate explanation
+        id: explanation
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }} # Accessing the secret value from github secrets
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Github TOken
+          PR_NUMBER: ${{ github.event.number }}
+          GITHUB_REPOSITORY: ${{ env.GITHUB_REPOSITORY }}
+        run: |
+          OPENAI_EXPLANATION=$(python generate_explanation.py)
+          echo "OPENAI_EXPLANATION<<EOF" >> $GITHUB_ENV
+          echo $OPENAI_EXPLANATION >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+          
+          echo "===================================="
+          echo $OPENAI_EXPLANATION
+          echo "===================================="
+
+      - name: Use Explanation in Workflow
+        run: |
+          echo "Explanation: ${{ env.OPENAI_EXPLANATION }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.number }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+      
+      - name: Install @actions/github and @octokit/rest
+        run: npm install @actions/github @octokit/rest
+
+      - name: Add Comment to Pull Request
+        uses: actions/github-script@v6
+        env:
+          GH_TKN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+              const { Octokit } = require('@octokit/rest');
+              const { context: githubContext } = require('@actions/github');
+
+              const token = process.env.GH_TKN;
+              const octokit = new Octokit({ auth: token });
+
+              const comment = `Explanation of Changes:\n\n${{ env.OPENAI_EXPLANATION }}`;
+
+              async function run() {
+                const newComment = await octokit.issues.createComment({
+                  ...githubContext.repo,
+                  issue_number: githubContext.issue.number,
+                  body: comment
+                });
+
+                console.log(`Comment added: ${newComment.data.html_url}`);
+              }
+
+              run();
+          
