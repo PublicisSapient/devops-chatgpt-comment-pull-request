@@ -108,7 +108,7 @@ try {
       presence_penalty: 0,
     });
 
-    const explanation = response.choices[0].text.trim();
+    const explanation = response.data.choices[0].text.trim();
     return explanation;
   }
 
