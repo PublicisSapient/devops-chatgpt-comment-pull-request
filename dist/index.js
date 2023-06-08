@@ -21289,7 +21289,7 @@ try {
 
     const response = await openai.createCompletion({
       model: "text-davinci-003",
-      prompt: "",
+      prompt: prompt,
       temperature: 1,
       max_tokens: 256,
       top_p: 1,
