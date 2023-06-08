@@ -21310,7 +21310,7 @@ try {
     .get(pull_request_url, { headers: headers })
     .then((response) => {
       const pull_request_data = response.data;
-      console.log(response.data);
+      // console.log(response.data);
 
       const base_commit_sha = pull_request_data.base.sha;
       const head_commit_sha = pull_request_data.head.sha;
@@ -21328,10 +21328,10 @@ try {
       const base_commit_data = baseCommitResponse.data;
       const head_commit_data = headCommitResponse.data;
 
-      console.log('Base Sha')
-      console.log(baseCommitResponse.data.sha);
-      console.log('Head Sha')
-      console.log(headCommitResponse.data.sha);
+      // console.log('Base Sha');
+      // console.log(baseCommitResponse.data.sha);
+      // console.log('Head Sha');
+      // console.log(headCommitResponse.data.sha);
 
       const compare_url = `https://api.github.com/repos/${repository}/compare/${base_commit_data.sha}...${head_commit_data.sha}`;
       return axios.get(compare_url, { headers: headers });
@@ -21340,7 +21340,8 @@ try {
       const compare_data = compareResponse.data;
       const changes = compare_data.files;
 
-      return generate_explanation(changes);
+      console.log(changes)
+      // return generate_explanation(changes);
     })
     // .then((explanation) => {
     //   console.log(explanation.split('-').join('\n'));
