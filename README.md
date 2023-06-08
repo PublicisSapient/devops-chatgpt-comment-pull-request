@@ -1,4 +1,4 @@
-# ChatGPT adds Comment to Pull Request
+# Comment to Pull Request using OpenAI's GPT API
 This GitHub Action adds a comment to a pull request when it is opened, reopened, or synchronized. The comment includes an explanation of changes generated using OpenAI's GPT API.
 
 ## Usage
