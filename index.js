@@ -98,6 +98,9 @@ try {
     const prompt = `Given the below diff. Summarize the changes in 200 workds or less:\n\n${changes}`;
     // const prompt = `How do you do?`;
 
+    console.log('The Prompt:')
+    console.log(prompt)
+
     const response = await openai.createCompletion({
       model: "text-davinci-003",
       prompt: prompt,
