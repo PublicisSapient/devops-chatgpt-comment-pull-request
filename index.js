@@ -116,6 +116,7 @@ try {
     .get(pull_request_url, { headers: headers })
     .then((response) => {
       const pull_request_data = response.data;
+      console.log(`PR Respone: ${pull_request_data}`)
 
       const base_commit_sha = pull_request_data.base.sha;
       const head_commit_sha = pull_request_data.head.sha;
