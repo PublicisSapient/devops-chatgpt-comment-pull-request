@@ -95,7 +95,8 @@ try {
   console.log(`Token: ${token}`);
 
   async function generate_explanation(changes) {
-    const prompt = `Changes: ${changes}\n\nExplain the changes:`;
+    // const prompt = `Changes: ${changes}\n\nExplain the changes:`;
+    const prompt = `How do you do?`;
 
     const response = await openai.createCompletion({
       model: "text-davinci-003",
@@ -151,12 +152,12 @@ try {
       const compare_data = compareResponse.data;
       const changes = compare_data.files;
 
-      console.log(changes)
-      // return generate_explanation(changes);
+      // console.log(changes)
+      return generate_explanation(changes);
     })
-    // .then((explanation) => {
-    //   console.log(explanation.split('-').join('\n'));
-    // })
+    .then((explanation) => {
+      console.log(explanation.split('-').join('\n'));
+    })
     .catch((error) => {
       console.error(error);
     });
