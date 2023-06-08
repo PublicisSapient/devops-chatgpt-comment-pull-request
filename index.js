@@ -95,7 +95,8 @@ try {
   console.log(`Token: ${token}`);
 
   async function generate_explanation(changes) {
-    const prompt = `Given the below diff. Summarize the changes in 200 workds or less:\n\n${changes}`;
+    const diff = JSON.stringify(changes)
+    const prompt = `Given the below diff. Summarize the changes in 200 words or less:\n\n${diff}`;
     // const prompt = `How do you do?`;
 
     console.log('The Prompt')
