@@ -95,7 +95,7 @@ try {
   console.log(`Token: ${token}`);
 
   async function generate_explanation(changes) {
-    const prompt = `Changes: ${changes}\n\nExplain the changes:`;
+    const prompt = `Summerize the changes. Limit to 200 words. \n\n ${changes}`;
     // const prompt = `How do you do?`;
 
     const response = await openai.createCompletion({
