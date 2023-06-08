@@ -1,7 +1,14 @@
-const openai = require('openai');
+// const openai = require('openai');
 const axios = require('axios');
 const core = require('@actions/core');
 const github = require('@actions/github');
+
+const { Configuration, OpenAIApi } = require("openai");
+
+const configuration = new Configuration({
+  apiKey: core.getInput('open-api-key')
+});
+const openai = new OpenAIApi(configuration);
 
 // dotenv.config();
 
@@ -87,19 +94,17 @@ try {
   console.log(`Repository: ${repository}`);
   console.log(`Token: ${token}`);
 
-  openai.apiKey = core.getInput('open-api-key');
-
   async function generate_explanation(changes) {
     const prompt = `Changes: ${changes}\n\nExplain the changes:`;
 
     const response = await openai.createCompletion({
-      model: 'text-davinci-003',
-      prompt: prompt,
-      max_tokens: 200,
-      temperature: 0.7,
-      n: 1,
-      stop: null,
-      timeout: 30,
+      model: "text-davinci-003",
+      prompt: "",
+      temperature: 1,
+      max_tokens: 256,
+      top_p: 1,
+      frequency_penalty: 0,
+      presence_penalty: 0,
     });
 
     const explanation = response.choices[0].text.trim();
