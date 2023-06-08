@@ -139,10 +139,10 @@ try {
       const base_commit_data = baseCommitResponse.data;
       const head_commit_data = headCommitResponse.data;
 
-      console.log('Base Sha')
-      console.log(baseCommitResponse.data.sha);
-      console.log('Head Sha')
-      console.log(headCommitResponse.data.sha);
+      // console.log('Base Sha');
+      // console.log(baseCommitResponse.data.sha);
+      // console.log('Head Sha');
+      // console.log(headCommitResponse.data.sha);
 
       const compare_url = `https://api.github.com/repos/${repository}/compare/${base_commit_data.sha}...${head_commit_data.sha}`;
       return axios.get(compare_url, { headers: headers });
