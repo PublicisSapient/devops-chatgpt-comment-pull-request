@@ -121,7 +121,7 @@ try {
     .get(pull_request_url, { headers: headers })
     .then((response) => {
       const pull_request_data = response.data;
-      console.log(response.data);
+      // console.log(response.data);
 
       const base_commit_sha = pull_request_data.base.sha;
       const head_commit_sha = pull_request_data.head.sha;
@@ -151,7 +151,8 @@ try {
       const compare_data = compareResponse.data;
       const changes = compare_data.files;
 
-      return generate_explanation(changes);
+      console.log(changes)
+      // return generate_explanation(changes);
     })
     // .then((explanation) => {
     //   console.log(explanation.split('-').join('\n'));
