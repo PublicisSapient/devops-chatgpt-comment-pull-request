@@ -21283,7 +21283,7 @@ try {
   console.log(`Repository: ${repository}`);
   console.log(`Token: ${token}`);
 
-  async function generate_explanation(changes) {
+  async function generate_explanation() {
     // const prompt = `Changes: ${changes}\n\nExplain the changes:`;
     const prompt = `How do you do?`;
 
@@ -21301,55 +21301,57 @@ try {
     return explanation;
   }
 
-  const pull_request_url = `https://api.github.com/repos/${repository}/pulls/${pull_request_number}`;
-  const headers = {
-    Accept: 'application/vnd.github.v3+json',
-    Authorization: `Bearer ${token}`,
-  };
+  generate_explanation();
 
-  axios
-    .get(pull_request_url, { headers: headers })
-    .then((response) => {
-      const pull_request_data = response.data;
-      // console.log(response.data);
+  // const pull_request_url = `https://api.github.com/repos/${repository}/pulls/${pull_request_number}`;
+  // const headers = {
+  //   Accept: 'application/vnd.github.v3+json',
+  //   Authorization: `Bearer ${token}`,
+  // };
 
-      const base_commit_sha = pull_request_data.base.sha;
-      const head_commit_sha = pull_request_data.head.sha;
+  // axios
+  //   .get(pull_request_url, { headers: headers })
+  //   .then((response) => {
+  //     const pull_request_data = response.data;
+  //     // console.log(response.data);
 
-      const commit_url = `https://api.github.com/repos/${repository}/commits/`;
-      const base_commit_url = commit_url + base_commit_sha;
-      const head_commit_url = commit_url + head_commit_sha;
+  //     const base_commit_sha = pull_request_data.base.sha;
+  //     const head_commit_sha = pull_request_data.head.sha;
 
-      return Promise.all([
-        axios.get(base_commit_url, { headers: headers }),
-        axios.get(head_commit_url, { headers: headers }),
-      ]);
-    })
-    .then(([baseCommitResponse, headCommitResponse]) => {
-      const base_commit_data = baseCommitResponse.data;
-      const head_commit_data = headCommitResponse.data;
+  //     const commit_url = `https://api.github.com/repos/${repository}/commits/`;
+  //     const base_commit_url = commit_url + base_commit_sha;
+  //     const head_commit_url = commit_url + head_commit_sha;
 
-      // console.log('Base Sha');
-      // console.log(baseCommitResponse.data.sha);
-      // console.log('Head Sha');
-      // console.log(headCommitResponse.data.sha);
+  //     return Promise.all([
+  //       axios.get(base_commit_url, { headers: headers }),
+  //       axios.get(head_commit_url, { headers: headers }),
+  //     ]);
+  //   })
+  //   .then(([baseCommitResponse, headCommitResponse]) => {
+  //     const base_commit_data = baseCommitResponse.data;
+  //     const head_commit_data = headCommitResponse.data;
 
-      const compare_url = `https://api.github.com/repos/${repository}/compare/${base_commit_data.sha}...${head_commit_data.sha}`;
-      return axios.get(compare_url, { headers: headers });
-    })
-    .then((compareResponse) => {
-      const compare_data = compareResponse.data;
-      const changes = compare_data.files;
+  //     // console.log('Base Sha');
+  //     // console.log(baseCommitResponse.data.sha);
+  //     // console.log('Head Sha');
+  //     // console.log(headCommitResponse.data.sha);
 
-      // console.log(changes)
-      return generate_explanation(changes);
-    })
-    .then((explanation) => {
-      console.log(explanation.split('-').join('\n'));
-    })
-    .catch((error) => {
-      console.error(error);
-    });
+  //     const compare_url = `https://api.github.com/repos/${repository}/compare/${base_commit_data.sha}...${head_commit_data.sha}`;
+  //     return axios.get(compare_url, { headers: headers });
+  //   })
+  //   .then((compareResponse) => {
+  //     const compare_data = compareResponse.data;
+  //     const changes = compare_data.files;
+
+  //     // console.log(changes)
+  //     return generate_explanation(changes);
+  //   })
+  //   .then((explanation) => {
+  //     console.log(explanation.split('-').join('\n'));
+  //   })
+  //   .catch((error) => {
+  //     console.error(error);
+  //   });
 
 } catch (error) {
   core.setFailed(error.message);
