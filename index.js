@@ -95,7 +95,7 @@ try {
   console.log(`Token: ${token}`);
 
   async function generate_explanation(changes) {
-    const prompt = `Summerize the changes to the code in 200 words or less: ${changes}`;
+    const prompt = `Given the below diff. Summarize the changes in 200 workds or less:\n\n${changes}`;
     // const prompt = `How do you do?`;
 
     const response = await openai.createCompletion({
