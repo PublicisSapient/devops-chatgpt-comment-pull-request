@@ -21343,7 +21343,7 @@ try {
       const compare_data = compareResponse.data;
       const changes = compare_data.files;
 
-      // console.log(changes)
+      console.log(changes)
       return generate_explanation(changes);
     })
     .then((explanation) => {
