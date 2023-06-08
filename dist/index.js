@@ -21284,15 +21284,15 @@ try {
   console.log(`Token: ${token}`);
 
   async function generate_explanation(changes) {
-    const prompt = `Given the below diff. Summarize the changes in 200 workds or less:\n\n${changes}`;
+    // const prompt = `Given the below diff. Summarize the changes in 200 workds or less:\n\n${changes}`;
     // const prompt = `How do you do?`;
 
-    console.log('The Prompt:')
-    console.log(prompt)
+    // console.log('The Prompt:')
+    // console.log(prompt)
 
     const response = await openai.createCompletion({
       model: "text-davinci-003",
-      prompt: prompt,
+      prompt: `Given the below diff. Summarize the changes in 200 workds or less:\n\n${changes}`,
       temperature: 1,
       max_tokens: 256,
       top_p: 1,
