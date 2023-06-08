@@ -142,12 +142,12 @@ try {
       const compare_url = `https://api.github.com/repos/${repository}/compare/${base_commit_data.sha}...${head_commit_data.sha}`;
       return axios.get(compare_url, { headers: headers });
     })
-    // .then((compareResponse) => {
-    //   const compare_data = compareResponse.data;
-    //   const changes = compare_data.files;
+    .then((compareResponse) => {
+      const compare_data = compareResponse.data;
+      const changes = compare_data.files;
 
-    //   return generate_explanation(changes);
-    // })
+      return generate_explanation(changes);
+    })
     // .then((explanation) => {
     //   console.log(explanation.split('-').join('\n'));
     // })
