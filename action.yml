@@ -4,6 +4,9 @@ inputs:
   github-token:
     description: 'GitHub Token'
     required: true
+  open-api-key:
+    description: 'OpenAPI Token'
+    required: true
 outputs:
   time: # id of output
     description: 'The time we greeted you'
