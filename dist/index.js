@@ -21281,8 +21281,8 @@ try {
   async function generate_explanation(changes) {
     const prompt = `Changes: ${changes}\n\nExplain the changes:`;
 
-    const response = await openai.Completion.create({
-      engine: 'text-davinci-003',
+    const response = await openai.createCompletion({
+      model: 'text-davinci-003',
       prompt: prompt,
       max_tokens: 200,
       temperature: 0.7,
