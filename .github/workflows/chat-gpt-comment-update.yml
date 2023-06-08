@@ -30,7 +30,7 @@ jobs:
           PR_NUMBER: ${{ github.event.number }}
           GITHUB_REPOSITORY: ${{ env.GITHUB_REPOSITORY }}
         run: |
-          OPENAI_EXPLANATION=$(python generate_explanation.py)
+          OPENAI_EXPLANATION=$(python src/generate_explanation.py)
           echo "OPENAI_EXPLANATION<<EOF" >> $GITHUB_ENV
           echo $OPENAI_EXPLANATION >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
