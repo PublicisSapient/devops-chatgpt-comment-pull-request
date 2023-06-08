@@ -1,6 +1,5 @@
 const openai = require('openai');
 const axios = require('axios');
-const dotenv = require('dotenv');
 const core = require('@actions/core');
 const github = require('@actions/github');
 
@@ -87,8 +86,6 @@ try {
   console.log(`The PR Number: ${pull_request_number}`);
   console.log(`Repository: ${repository}`);
   console.log(`Token: ${token}`);
-
-  dotenv.config();
 
   openai.apiKey = core.getInput('open-api-key');
 
