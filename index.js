@@ -91,9 +91,10 @@ try {
       const changes = compare_data.files;
 
       // const str = 'This is an example sentence to try encoding out on!';
-      const tokens = encode(JSON.stringify(changes));
+      const tokens = encode(JSON.stringify(changes)).length;
       // console.log('Encoded this string looks like: ', tokens)
       console.log('Token Count:', tokens);
+      console.log('Changes: ', JSON.stringify(changes));
 
       // console.log(changes)
       // return generate_explanation(changes);
