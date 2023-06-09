@@ -99,6 +99,7 @@ try {
         return generate_explanation(changes);
       } else {
         console.log(`The number of prompt tokens ${tokens} has exceeded the maximum allowed ${max_prompt_tokens}`)
+        return;
       }
 
       // console.log(changes)
@@ -106,7 +107,7 @@ try {
     })
     .then((explanation) => {
       console.log(explanation.split('-').join('\n'));
-      
+
     //   const octokit = new Octokit({ auth: token });
     //   const comment = `Explanation of Changes (Generated via OpenAI):\n\n${JSON.stringify(explanation)}`;
     //   async function create_comment() {
