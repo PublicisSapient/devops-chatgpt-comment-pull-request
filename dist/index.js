@@ -24734,16 +24734,6 @@ async function generate_explanation(changes) {
   return explanation;
 }
 
-async function create_comment() {
-  const newComment = await octokit.issues.createComment({
-    ...githubContext.repo,
-    issue_number: githubContext.issue.number,
-    body: comment
-  });
-
-  console.log(`Comment added: ${newComment.data.html_url}`);
-}
-
 try {
   // Get the JSON webhook payload for the event that triggered the workflow
   const payload = JSON.stringify(github.context.payload, undefined, 2)
@@ -24802,6 +24792,16 @@ try {
     .then((explanation) => {
       // console.log(explanation.split('-').join('\n'));
       const octokit = new Octokit({ auth: token });
+      const comment = `Explanation of Changes:\n\n${{explanation}}`;
+      async function create_comment() {
+        const newComment = await octokit.issues.createComment({
+          ...githubContext.repo,
+          issue_number: githubContext.issue.number,
+          body: comment
+        });
+      
+        console.log(`Comment added: ${newComment.data.html_url}`);
+      }
       create_comment();
     })
     .catch((error) => {
