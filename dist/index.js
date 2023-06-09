@@ -24993,8 +24993,9 @@ try {
       if (tokens < max_prompt_tokens) {
         return generate_explanation(changes);
       } else {
-        console.log(`The number of prompt tokens ${tokens} has exceeded the maximum allowed ${max_prompt_tokens}`)
-        return;
+        // console.log(`The number of prompt tokens ${tokens} has exceeded the maximum allowed ${max_prompt_tokens}`)
+        const explanation = `The number of prompt tokens ${tokens} has exceeded the maximum allowed ${max_prompt_tokens}`;
+        return explanation 
       }
 
       // console.log(changes)
