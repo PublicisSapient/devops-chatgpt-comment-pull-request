@@ -104,8 +104,9 @@ try {
       // console.log(changes)
       // return generate_explanation(changes);
     })
-    // .then((explanation) => {
-    //   // console.log(explanation.split('-').join('\n'));
+    .then((explanation) => {
+      console.log(explanation.split('-').join('\n'));
+      
     //   const octokit = new Octokit({ auth: token });
     //   const comment = `Explanation of Changes (Generated via OpenAI):\n\n${JSON.stringify(explanation)}`;
     //   async function create_comment() {
@@ -118,7 +119,7 @@ try {
     //     console.log(`Comment added: ${newComment.data.html_url}`);
     //   }
     //   create_comment();
-    // })
+    })
     .catch((error) => {
       console.error(error);
     });
