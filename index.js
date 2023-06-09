@@ -99,12 +99,9 @@ try {
         return generate_explanation(changes);
       } else {
         console.log(`The number of prompt tokens ${tokens} has exceeded the maximum allowed ${max_prompt_tokens}`)
-        const explanation = 'skip comment';
+        const explanation = 'skipping comment';
         return explanation 
       }
-
-      // console.log(changes)
-      // return generate_explanation(changes);
     })
     .then((explanation) => {
       console.log(explanation.split('-').join('\n'));
@@ -121,7 +118,7 @@ try {
         console.log(`Comment added: ${newComment.data.html_url}`);
       }
 
-      if ( explanation == 'skip comment') {
+      if ( explanation == 'skipping comment') {
         console.log('Skipping Comment due to Max Tokens')
       } else {
         create_comment();
