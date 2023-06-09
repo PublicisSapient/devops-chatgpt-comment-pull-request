@@ -1,0 +1,19 @@
+name: 'Hello World'
+description: 'Greet someone and record the time'
+inputs:
+  github-token:
+    description: 'GitHub Token'
+    required: true
+  open-api-key:
+    description: 'OpenAPI Token'
+    required: true
+  max-prompt-tokens:
+    description: 'The maximum number of tokens to use for the prompt'
+    required: false
+    default: '2048'
+outputs:
+  time: # id of output
+    description: 'The time we greeted you'
+runs:
+  using: 'node16'
+  main: 'dist/index.js'
