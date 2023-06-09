@@ -24986,8 +24986,9 @@ try {
       const changes = compare_data.files;
 
       // const str = 'This is an example sentence to try encoding out on!';
-      const tokens = encode(changes).length;
-      console.log('Token Count:', tokens);
+      const tokens = encode(changes);
+      console.log('Encoded this string looks like: ', tokens)
+      // console.log('Token Count:', tokens);
 
       // console.log(changes)
       // return generate_explanation(changes);
