@@ -7,6 +7,10 @@ inputs:
   open-api-key:
     description: 'OpenAPI Token'
     required: true
+  max-prompt-tokens:
+    description: 'The maximum number of tokens to use for the prompt'
+    required: false
+    default: '2048'
 outputs:
   time: # id of output
     description: 'The time we greeted you'

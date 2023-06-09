@@ -24985,11 +24985,15 @@ try {
       const compare_data = compareResponse.data;
       const changes = compare_data.files;
 
-      // const str = 'This is an example sentence to try encoding out on!';
       const tokens = encode(JSON.stringify(changes)).length;
-      // console.log('Encoded this string looks like: ', tokens)
-      console.log('Token Count:', tokens);
-      console.log('Changes: ', JSON.stringify(changes));
+      const max_prompt_tokens = core.getInput('max_prompt_tokens');
+      console.log('Prompt Token Count:', tokens);
+
+      if (tokens < max_prompt_tokens) {
+        return generate_explanation(changes);
+      } else {
+        console.log(`The number of prompt tokens ${tokens} has exceeded the maximum allowed ${max_prompt_tokens}`)
+      }
 
       // console.log(changes)
       // return generate_explanation(changes);
