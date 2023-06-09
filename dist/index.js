@@ -24898,7 +24898,7 @@ const axios = __nccwpck_require__(515);
 const core = __nccwpck_require__(8864);
 const github = __nccwpck_require__(6366);
 
-const {encode } = __nccwpck_require__(9459)
+const { GPT3Encoder } = __nccwpck_require__(9459)
 
 const { Configuration, OpenAIApi } = __nccwpck_require__(7142);
 
@@ -24985,9 +24985,11 @@ try {
       const compare_data = compareResponse.data;
       const changes = compare_data.files;
 
-      const str = 'This is an example sentence to try encoding out on!';
-      const encoded = encode(str);
-      console.log('Encoded this string looks like: ', encoded);
+      const text = 'This is an example sentence to try encoding out on!';
+      const tokens = GPT3Encoder.encode(text);
+      const tokenCount = tokens.length;
+
+      console.log(`Token count: ${tokenCount}`);
 
       // console.log(changes)
       // return generate_explanation(changes);
