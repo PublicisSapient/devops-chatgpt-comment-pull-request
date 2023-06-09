@@ -3,7 +3,7 @@ const axios = require('axios');
 const core = require('@actions/core');
 const github = require('@actions/github');
 
-const { GPT3Encoder } = require('gpt-3-encoder')
+const { encode } = require('gpt-3-encoder')
 
 const { Configuration, OpenAIApi } = require("openai");
 
@@ -90,11 +90,9 @@ try {
       const compare_data = compareResponse.data;
       const changes = compare_data.files;
 
-      const text = 'This is an example sentence to try encoding out on!';
-      const tokens = GPT3Encoder.encode(text);
-      const tokenCount = tokens.length;
-
-      console.log(`Token count: ${tokenCount}`);
+      const str = 'This is an example sentence to try encoding out on!';
+      const tokens = encode(str).length;
+      console.log('Token Count:', encoded);
 
       // console.log(changes)
       // return generate_explanation(changes);
