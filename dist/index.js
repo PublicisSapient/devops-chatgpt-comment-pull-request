@@ -16741,6 +16741,14 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
+/***/ 2966:
+/***/ ((module) => {
+
+module.exports = eval("require")("@octokit/rest");
+
+
+/***/ }),
+
 /***/ 9412:
 /***/ ((module) => {
 
@@ -21194,18 +21202,22 @@ const github = __nccwpck_require__(6366);
 
 const { Configuration, OpenAIApi } = __nccwpck_require__(7142);
 
+const { Octokit } = __nccwpck_require__(2966);
+const { context: githubContext } = __nccwpck_require__(6366);
+
 const configuration = new Configuration({
   apiKey: core.getInput('open-api-key')
 });
 const openai = new OpenAIApi(configuration);
 
+
+// Function to generate the explaination of the changes using open api.
 async function generate_explanation(changes) {
   const diff = JSON.stringify(changes)
   const prompt = `Given the below diff. Summarize the changes in 200 words or less:\n\n${diff}`;
-  // const prompt = `How do you do?`;
 
-  console.log('The Prompt')
-  console.log(JSON.stringify(prompt))
+  // console.log('The Prompt')
+  // console.log(JSON.stringify(prompt))
 
   const response = await openai.createCompletion({
     model: "text-davinci-003",
@@ -21221,9 +21233,17 @@ async function generate_explanation(changes) {
   return explanation;
 }
 
+async function create_comment() {
+  const newComment = await octokit.issues.createComment({
+    ...githubContext.repo,
+    issue_number: githubContext.issue.number,
+    body: comment
+  });
+
+  console.log(`Comment added: ${newComment.data.html_url}`);
+}
+
 try {
-  const time = (new Date()).toTimeString();
-  core.setOutput("time", time);
   // Get the JSON webhook payload for the event that triggered the workflow
   const payload = JSON.stringify(github.context.payload, undefined, 2)
   const jsonData = JSON.parse(payload);
@@ -21275,11 +21295,13 @@ try {
       const compare_data = compareResponse.data;
       const changes = compare_data.files;
 
-      console.log(changes)
+      // console.log(changes)
       return generate_explanation(changes);
     })
     .then((explanation) => {
-      console.log(explanation.split('-').join('\n'));
+      // console.log(explanation.split('-').join('\n'));
+      const octokit = new Octokit({ auth: token });
+      create_comment();
     })
     .catch((error) => {
       console.error(error);
