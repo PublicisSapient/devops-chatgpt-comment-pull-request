@@ -92,7 +92,7 @@ try {
 
       const str = 'This is an example sentence to try encoding out on!';
       const tokens = encode(str).length;
-      console.log('Token Count:', encoded);
+      console.log('Token Count:', tokens);
 
       // console.log(changes)
       // return generate_explanation(changes);
