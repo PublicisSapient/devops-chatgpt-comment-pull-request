@@ -93,6 +93,7 @@ try {
       const tokens = encode(JSON.stringify(changes)).length;
       const max_prompt_tokens = core.getInput('max_prompt_tokens');
       console.log('Prompt Token Count:', tokens);
+      console.log('Max Prompt Tokens: ', max_prompt_tokens);
 
       if (tokens < max_prompt_tokens) {
         return generate_explanation(changes);
