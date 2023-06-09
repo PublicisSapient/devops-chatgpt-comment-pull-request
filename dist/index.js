@@ -25016,13 +25016,10 @@ try {
         console.log(`Comment added: ${newComment.data.html_url}`);
       }
 
-      const stringToCheck = "skip comment";
-      const skip = explanation.test(stringToCheck);
-
-      if (skip) {
+      if ( explanation == 'skip comment') {
         console.log('Skipping Comment due to Max Tokens')
       } else {
-       create_comment();
+        create_comment();
       }
     })
     .catch((error) => {
