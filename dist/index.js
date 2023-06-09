@@ -24792,7 +24792,7 @@ try {
     .then((explanation) => {
       // console.log(explanation.split('-').join('\n'));
       const octokit = new Octokit({ auth: token });
-      const comment = `Explanation of Changes:\n\n${{explanation}}`;
+      const comment = `Explanation of Changes:\n\n${JSON.stringify(explanation)}`;
       async function create_comment() {
         const newComment = await octokit.issues.createComment({
           ...githubContext.repo,
