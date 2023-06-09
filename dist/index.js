@@ -10022,6 +10022,203 @@ module.exports = function(dst, src) {
 
 /***/ }),
 
+/***/ 7030:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+// This file includes code which was modified from https://github.com/openai/gpt-2
+const fs = __nccwpck_require__(7147)
+const path = __nccwpck_require__(1017);
+
+const encoder = JSON.parse(fs.readFileSync(__nccwpck_require__.ab + "encoder.json"));
+const bpe_file = fs.readFileSync(__nccwpck_require__.ab + "vocab.bpe", 'utf-8');
+
+const range = (x, y) => {
+  const res = Array.from(Array(y).keys()).slice(x)
+  return res
+}
+
+const ord = x => {
+  return x.charCodeAt(0)
+}
+
+const chr = x => {
+  return String.fromCharCode(x)
+}
+
+const textEncoder = new TextEncoder("utf-8")
+const encodeStr = str => {
+  return Array.from(textEncoder.encode(str)).map(x => x.toString())
+}
+
+const textDecoder = new TextDecoder("utf-8")
+const decodeStr = arr => {
+  return textDecoder.decode(new Uint8Array(arr));
+}
+
+const dictZip = (x, y) => {
+  const result = {}
+  x.map((_, i) => { result[x[i]] = y[i] })
+  return result
+}
+
+function bytes_to_unicode() {
+  const bs = range(ord('!'), ord('~') + 1).concat(range(ord('¡'), ord('¬') + 1), range(ord('®'), ord('ÿ') + 1))
+
+  let cs = bs.slice()
+  let n = 0
+  for (let b = 0; b < 2 ** 8; b++) {
+    if (!bs.includes(b)) {
+      bs.push(b)
+      cs.push(2 ** 8 + n)
+      n = n + 1
+    }
+  }
+
+  cs = cs.map(x => chr(x))
+
+  const result = {}
+  bs.map((_, i) => { result[bs[i]] = cs[i] })
+  return result
+}
+
+function get_pairs(word) {
+  const pairs = new Set()
+  let prev_char = word[0]
+  for (let i = 1; i < word.length; i++) {
+    const char = word[i]
+    pairs.add([prev_char, char])
+    prev_char = char
+  }
+  return pairs
+}
+
+const pat = /'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+/gu
+
+const decoder = {}
+Object.keys(encoder).map(x => { decoder[encoder[x]] = x })
+
+const lines = bpe_file.split('\n')
+
+// bpe_merges = [tuple(merge_str.split()) for merge_str in bpe_data.split("\n")[1:-1]]
+const bpe_merges = lines.slice(1, lines.length - 1).map(x => {
+  return x.split(/(\s+)/).filter(function(e) { return e.trim().length > 0 })
+})
+
+const byte_encoder = bytes_to_unicode()
+const byte_decoder = {}
+Object.keys(byte_encoder).map(x => { byte_decoder[byte_encoder[x]] = x })
+
+const bpe_ranks = dictZip(bpe_merges, range(0, bpe_merges.length))
+const cache = new Map;
+
+function bpe(token) {
+  if (cache.has(token)) {
+    return cache.get(token)
+  }``
+
+  let word = token.split('')
+
+  let pairs = get_pairs(word)
+
+  if (!pairs) {
+    return token
+  }
+
+  while (true) {
+    const minPairs = {}
+    Array.from(pairs).map(pair => {
+      const rank = bpe_ranks[pair]
+      minPairs[(isNaN(rank) ? 10e10 : rank)] = pair
+    })
+
+
+
+    const bigram = minPairs[Math.min(...Object.keys(minPairs).map(x => {
+      return parseInt(x)
+    }
+    ))]
+
+    if (!(bigram in bpe_ranks)) {
+      break
+    }
+
+    const first = bigram[0]
+    const second = bigram[1]
+    let new_word = []
+    let i = 0
+
+    while (i < word.length) {
+      const j = word.indexOf(first, i)
+      if (j === -1) {
+        new_word = new_word.concat(word.slice(i))
+        break
+      }
+      new_word = new_word.concat(word.slice(i, j))
+      i = j
+
+      if (word[i] === first && i < word.length - 1 && word[i + 1] === second) {
+        new_word.push(first + second)
+        i = i + 2
+      } else {
+        new_word.push(word[i])
+        i = i + 1
+      }
+    }
+
+    word = new_word
+    if (word.length === 1) {
+      break
+    } else {
+      pairs = get_pairs(word)
+    }
+  }
+
+  word = word.join(' ')
+  cache.set(token, word)
+
+  return word
+}
+
+function encode(text) {
+  let bpe_tokens = []
+  const matches = Array.from(text.matchAll(pat)).map(x => x[0])
+  for (let token of matches) {
+    token = encodeStr(token).map(x => {
+      return byte_encoder[x]
+    }).join('')
+    
+    const new_tokens = bpe(token).split(' ').map(x => encoder[x])
+    bpe_tokens = bpe_tokens.concat(new_tokens)
+  }
+  return bpe_tokens
+}
+
+function decode(tokens) {
+  let text = tokens.map(x => decoder[x]).join('')
+  text = decodeStr(text.split('').map(x => byte_decoder[x]))
+  return text
+}
+
+module.exports = {
+  encode,
+  decode
+};
+
+/***/ }),
+
+/***/ 9459:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const { encode, decode } = __nccwpck_require__(7030);
+
+module.exports = {
+  encode,
+  decode,
+};
+
+
+/***/ }),
+
 /***/ 1810:
 /***/ ((__unused_webpack_module, exports) => {
 
@@ -20386,485 +20583,6 @@ module.exports = require("zlib");
 
 /***/ }),
 
-/***/ 8294:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-const wasm = __nccwpck_require__(3011);
-let imports = {};
-imports["./tiktoken_bg.js"] = wasm;
-const path = __nccwpck_require__(1017);
-const fs = __nccwpck_require__(7147);
-
-const candidates = __dirname
-  .split(path.sep)
-  .reduce((memo, _, index, array) => {
-    const prefix = array.slice(0, index + 1).join(path.sep) + path.sep;
-    if (!prefix.includes("node_modules" + path.sep)) {
-      memo.unshift(
-        path.join(
-          prefix,
-          "node_modules",
-          "@dqbd",
-          "tiktoken",
-          "",
-          "./tiktoken_bg.wasm"
-        )
-      );
-    }
-    return memo;
-  }, [])
-candidates.unshift(path.join(__dirname, "./tiktoken_bg.wasm"));
-
-let bytes = null;
-for (const candidate of candidates) {
-  try {
-    bytes = fs.readFileSync(candidate);
-    break;
-  } catch {}
-}
-
-if (bytes == null) throw new Error("Missing tiktoken_bg.wasm");
-const wasmModule = new WebAssembly.Module(bytes);
-const wasmInstance = new WebAssembly.Instance(wasmModule, imports);
-wasm.__wbg_set_wasm(wasmInstance.exports);
-exports.get_encoding = wasm["get_encoding"];
-exports.encoding_for_model = wasm["encoding_for_model"];
-exports.Tiktoken = wasm["Tiktoken"];
-
-/***/ }),
-
-/***/ 3011:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-/* module decorator */ module = __nccwpck_require__.nmd(module);
-let wasm;
-module.exports.__wbg_set_wasm = function(val) {
-    wasm = val;
-};
-const heap = new Array(128).fill(undefined);
-
-heap.push(undefined, null, true, false);
-
-function getObject(idx) { return heap[idx]; }
-
-let heap_next = heap.length;
-
-function dropObject(idx) {
-    if (idx < 132) return;
-    heap[idx] = heap_next;
-    heap_next = idx;
-}
-
-function takeObject(idx) {
-    const ret = getObject(idx);
-    dropObject(idx);
-    return ret;
-}
-
-let WASM_VECTOR_LEN = 0;
-
-let cachedUint8Memory0 = null;
-
-function getUint8Memory0() {
-    if (cachedUint8Memory0 === null || cachedUint8Memory0.byteLength === 0) {
-        cachedUint8Memory0 = new Uint8Array(wasm.memory.buffer);
-    }
-    return cachedUint8Memory0;
-}
-
-const lTextEncoder = typeof TextEncoder === 'undefined' ? (0, module.require)('util').TextEncoder : TextEncoder;
-
-let cachedTextEncoder = new lTextEncoder('utf-8');
-
-const encodeString = (typeof cachedTextEncoder.encodeInto === 'function'
-    ? function (arg, view) {
-    return cachedTextEncoder.encodeInto(arg, view);
-}
-    : function (arg, view) {
-    const buf = cachedTextEncoder.encode(arg);
-    view.set(buf);
-    return {
-        read: arg.length,
-        written: buf.length
-    };
-});
-
-function passStringToWasm0(arg, malloc, realloc) {
-
-    if (realloc === undefined) {
-        const buf = cachedTextEncoder.encode(arg);
-        const ptr = malloc(buf.length);
-        getUint8Memory0().subarray(ptr, ptr + buf.length).set(buf);
-        WASM_VECTOR_LEN = buf.length;
-        return ptr;
-    }
-
-    let len = arg.length;
-    let ptr = malloc(len);
-
-    const mem = getUint8Memory0();
-
-    let offset = 0;
-
-    for (; offset < len; offset++) {
-        const code = arg.charCodeAt(offset);
-        if (code > 0x7F) break;
-        mem[ptr + offset] = code;
-    }
-
-    if (offset !== len) {
-        if (offset !== 0) {
-            arg = arg.slice(offset);
-        }
-        ptr = realloc(ptr, len, len = offset + arg.length * 3);
-        const view = getUint8Memory0().subarray(ptr + offset, ptr + len);
-        const ret = encodeString(arg, view);
-
-        offset += ret.written;
-    }
-
-    WASM_VECTOR_LEN = offset;
-    return ptr;
-}
-
-function isLikeNone(x) {
-    return x === undefined || x === null;
-}
-
-let cachedInt32Memory0 = null;
-
-function getInt32Memory0() {
-    if (cachedInt32Memory0 === null || cachedInt32Memory0.byteLength === 0) {
-        cachedInt32Memory0 = new Int32Array(wasm.memory.buffer);
-    }
-    return cachedInt32Memory0;
-}
-
-const lTextDecoder = typeof TextDecoder === 'undefined' ? (0, module.require)('util').TextDecoder : TextDecoder;
-
-let cachedTextDecoder = new lTextDecoder('utf-8', { ignoreBOM: true, fatal: true });
-
-cachedTextDecoder.decode();
-
-function getStringFromWasm0(ptr, len) {
-    return cachedTextDecoder.decode(getUint8Memory0().subarray(ptr, ptr + len));
-}
-
-function addHeapObject(obj) {
-    if (heap_next === heap.length) heap.push(heap.length + 1);
-    const idx = heap_next;
-    heap_next = heap[idx];
-
-    heap[idx] = obj;
-    return idx;
-}
-
-let cachedUint32Memory0 = null;
-
-function getUint32Memory0() {
-    if (cachedUint32Memory0 === null || cachedUint32Memory0.byteLength === 0) {
-        cachedUint32Memory0 = new Uint32Array(wasm.memory.buffer);
-    }
-    return cachedUint32Memory0;
-}
-
-function getArrayU32FromWasm0(ptr, len) {
-    return getUint32Memory0().subarray(ptr / 4, ptr / 4 + len);
-}
-
-function passArray8ToWasm0(arg, malloc) {
-    const ptr = malloc(arg.length * 1);
-    getUint8Memory0().set(arg, ptr / 1);
-    WASM_VECTOR_LEN = arg.length;
-    return ptr;
-}
-
-function passArray32ToWasm0(arg, malloc) {
-    const ptr = malloc(arg.length * 4);
-    getUint32Memory0().set(arg, ptr / 4);
-    WASM_VECTOR_LEN = arg.length;
-    return ptr;
-}
-
-function getArrayU8FromWasm0(ptr, len) {
-    return getUint8Memory0().subarray(ptr / 1, ptr / 1 + len);
-}
-module.exports.get_encoding = function(encoding, extend_special_tokens) {
-    if (wasm == null) throw new Error("@dqbd/tiktoken: WASM binary has not been propery initialized.");
-    try {
-        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-        const ptr0 = passStringToWasm0(encoding, wasm.__wbindgen_export_0, wasm.__wbindgen_export_1);
-        const len0 = WASM_VECTOR_LEN;
-        wasm.get_encoding(retptr, ptr0, len0, addHeapObject(extend_special_tokens));
-        var r0 = getInt32Memory0()[retptr / 4 + 0];
-        var r1 = getInt32Memory0()[retptr / 4 + 1];
-        var r2 = getInt32Memory0()[retptr / 4 + 2];
-        if (r2) {
-            throw takeObject(r1);
-        }
-        return Tiktoken.__wrap(r0);
-    } finally {
-        wasm.__wbindgen_add_to_stack_pointer(16);
-    }
-};
-module.exports.encoding_for_model = function(model, extend_special_tokens) {
-    if (wasm == null) throw new Error("@dqbd/tiktoken: WASM binary has not been propery initialized.");
-    try {
-        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-        const ptr0 = passStringToWasm0(model, wasm.__wbindgen_export_0, wasm.__wbindgen_export_1);
-        const len0 = WASM_VECTOR_LEN;
-        wasm.encoding_for_model(retptr, ptr0, len0, addHeapObject(extend_special_tokens));
-        var r0 = getInt32Memory0()[retptr / 4 + 0];
-        var r1 = getInt32Memory0()[retptr / 4 + 1];
-        var r2 = getInt32Memory0()[retptr / 4 + 2];
-        if (r2) {
-            throw takeObject(r1);
-        }
-        return Tiktoken.__wrap(r0);
-    } finally {
-        wasm.__wbindgen_add_to_stack_pointer(16);
-    }
-};
-
-function handleError(f, args) {
-    try {
-        return f.apply(this, args);
-    } catch (e) {
-        wasm.__wbindgen_export_3(addHeapObject(e));
-    }
-}
-/** */
-class Tiktoken {
-    /**
-     * @param {string} tiktoken_bfe
-     * @param {any} special_tokens
-     * @param {string} pat_str
-     */
-    constructor(tiktoken_bfe, special_tokens, pat_str) {
-        if (wasm == null) throw new Error("@dqbd/tiktoken: WASM binary has not been propery initialized.");
-        const ptr0 = passStringToWasm0(tiktoken_bfe, wasm.__wbindgen_export_0, wasm.__wbindgen_export_1);
-        const len0 = WASM_VECTOR_LEN;
-        const ptr1 = passStringToWasm0(pat_str, wasm.__wbindgen_export_0, wasm.__wbindgen_export_1);
-        const len1 = WASM_VECTOR_LEN;
-        const ret = wasm.tiktoken_new(ptr0, len0, addHeapObject(special_tokens), ptr1, len1);
-        return Tiktoken.__wrap(ret);
-    }
-
-    /** @returns {string | undefined} */
-    get name() {
-        try {
-            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            wasm.tiktoken_name(retptr, this.ptr);
-            var r0 = getInt32Memory0()[retptr / 4 + 0];
-            var r1 = getInt32Memory0()[retptr / 4 + 1];
-            let v0;
-            if (r0 !== 0) {
-                v0 = getStringFromWasm0(r0, r1).slice();
-                wasm.__wbindgen_export_2(r0, r1 * 1);
-            }
-            return v0;
-        } finally {
-            wasm.__wbindgen_add_to_stack_pointer(16);
-        }
-    }
-
-    static __wrap(ptr) {
-        const obj = Object.create(Tiktoken.prototype);
-        obj.ptr = ptr;
-        return obj;
-    }
-
-    __destroy_into_raw() {
-        const ptr = this.ptr;
-        this.ptr = 0;
-        return ptr;
-    }
-
-    free() {
-        if (wasm == null) throw new Error("@dqbd/tiktoken: WASM binary has not been propery initialized.");
-        const ptr = this.__destroy_into_raw();
-        wasm.__wbg_tiktoken_free(ptr);
-    }
-
-    /**
-     * @param {string} text
-     * @param {any} allowed_special
-     * @param {any} disallowed_special
-     * @returns {Uint32Array}
-     */
-    encode(text, allowed_special, disallowed_special) {
-        if (wasm == null) throw new Error("@dqbd/tiktoken: WASM binary has not been propery initialized.");
-        try {
-            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            const ptr0 = passStringToWasm0(text, wasm.__wbindgen_export_0, wasm.__wbindgen_export_1);
-            const len0 = WASM_VECTOR_LEN;
-            wasm.tiktoken_encode(retptr, this.ptr, ptr0, len0, addHeapObject(allowed_special), addHeapObject(disallowed_special));
-            var r0 = getInt32Memory0()[retptr / 4 + 0];
-            var r1 = getInt32Memory0()[retptr / 4 + 1];
-            var r2 = getInt32Memory0()[retptr / 4 + 2];
-            var r3 = getInt32Memory0()[retptr / 4 + 3];
-            if (r3) {
-                throw takeObject(r2);
-            }
-            var v1 = getArrayU32FromWasm0(r0, r1).slice();
-            wasm.__wbindgen_export_2(r0, r1 * 4);
-            return v1;
-        } finally {
-            wasm.__wbindgen_add_to_stack_pointer(16);
-        }
-    }
-
-    /**
-     * @param {string} text
-     * @returns {Uint32Array}
-     */
-    encode_ordinary(text) {
-        if (wasm == null) throw new Error("@dqbd/tiktoken: WASM binary has not been propery initialized.");
-        try {
-            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            const ptr0 = passStringToWasm0(text, wasm.__wbindgen_export_0, wasm.__wbindgen_export_1);
-            const len0 = WASM_VECTOR_LEN;
-            wasm.tiktoken_encode_ordinary(retptr, this.ptr, ptr0, len0);
-            var r0 = getInt32Memory0()[retptr / 4 + 0];
-            var r1 = getInt32Memory0()[retptr / 4 + 1];
-            var v1 = getArrayU32FromWasm0(r0, r1).slice();
-            wasm.__wbindgen_export_2(r0, r1 * 4);
-            return v1;
-        } finally {
-            wasm.__wbindgen_add_to_stack_pointer(16);
-        }
-    }
-
-    /**
-     * @param {string} text
-     * @param {any} allowed_special
-     * @param {any} disallowed_special
-     * @returns {any}
-     */
-    encode_with_unstable(text, allowed_special, disallowed_special) {
-        if (wasm == null) throw new Error("@dqbd/tiktoken: WASM binary has not been propery initialized.");
-        try {
-            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            const ptr0 = passStringToWasm0(text, wasm.__wbindgen_export_0, wasm.__wbindgen_export_1);
-            const len0 = WASM_VECTOR_LEN;
-            wasm.tiktoken_encode_with_unstable(retptr, this.ptr, ptr0, len0, addHeapObject(allowed_special), addHeapObject(disallowed_special));
-            var r0 = getInt32Memory0()[retptr / 4 + 0];
-            var r1 = getInt32Memory0()[retptr / 4 + 1];
-            var r2 = getInt32Memory0()[retptr / 4 + 2];
-            if (r2) {
-                throw takeObject(r1);
-            }
-            return takeObject(r0);
-        } finally {
-            wasm.__wbindgen_add_to_stack_pointer(16);
-        }
-    }
-
-    /**
-     * @param {Uint8Array} bytes
-     * @returns {number}
-     */
-    encode_single_token(bytes) {
-        if (wasm == null) throw new Error("@dqbd/tiktoken: WASM binary has not been propery initialized.");
-        const ptr0 = passArray8ToWasm0(bytes, wasm.__wbindgen_export_0);
-        const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.tiktoken_encode_single_token(this.ptr, ptr0, len0);
-        return ret >>> 0;
-    }
-
-    /**
-     * @param {Uint32Array} tokens
-     * @returns {Uint8Array}
-     */
-    decode(tokens) {
-        if (wasm == null) throw new Error("@dqbd/tiktoken: WASM binary has not been propery initialized.");
-        try {
-            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            const ptr0 = passArray32ToWasm0(tokens, wasm.__wbindgen_export_0);
-            const len0 = WASM_VECTOR_LEN;
-            wasm.tiktoken_decode(retptr, this.ptr, ptr0, len0);
-            var r0 = getInt32Memory0()[retptr / 4 + 0];
-            var r1 = getInt32Memory0()[retptr / 4 + 1];
-            var v1 = getArrayU8FromWasm0(r0, r1).slice();
-            wasm.__wbindgen_export_2(r0, r1 * 1);
-            return v1;
-        } finally {
-            wasm.__wbindgen_add_to_stack_pointer(16);
-        }
-    }
-
-    /**
-     * @param {number} token
-     * @returns {Uint8Array}
-     */
-    decode_single_token_bytes(token) {
-        if (wasm == null) throw new Error("@dqbd/tiktoken: WASM binary has not been propery initialized.");
-        try {
-            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            wasm.tiktoken_decode_single_token_bytes(retptr, this.ptr, token);
-            var r0 = getInt32Memory0()[retptr / 4 + 0];
-            var r1 = getInt32Memory0()[retptr / 4 + 1];
-            var v0 = getArrayU8FromWasm0(r0, r1).slice();
-            wasm.__wbindgen_export_2(r0, r1 * 1);
-            return v0;
-        } finally {
-            wasm.__wbindgen_add_to_stack_pointer(16);
-        }
-    }
-
-    /** @returns {any} */
-    token_byte_values() {
-        if (wasm == null) throw new Error("@dqbd/tiktoken: WASM binary has not been propery initialized.");
-        const ret = wasm.tiktoken_token_byte_values(this.ptr);
-        return takeObject(ret);
-    }
-}
-module.exports.Tiktoken = Tiktoken;
-module.exports.__wbindgen_object_drop_ref = function(arg0) {
-    takeObject(arg0);
-};
-;
-module.exports.__wbindgen_is_undefined = function(arg0) {
-    const ret = getObject(arg0) === undefined;
-    return ret;
-};
-;
-module.exports.__wbg_stringify_029a979dfb73aa17 = function() {
-    return handleError(function (arg0) {
-        const ret = JSON.stringify(getObject(arg0));
-        return addHeapObject(ret);
-    }, arguments) };
-;
-module.exports.__wbindgen_string_get = function(arg0, arg1) {
-    if (wasm == null) throw new Error("@dqbd/tiktoken: WASM binary has not been propery initialized.");
-    const obj = getObject(arg1);
-    const ret = typeof(obj) === 'string' ? obj : undefined;
-    var ptr0 = isLikeNone(ret) ? 0 : passStringToWasm0(ret, wasm.__wbindgen_export_0, wasm.__wbindgen_export_1);
-    var len0 = WASM_VECTOR_LEN;
-    getInt32Memory0()[arg0 / 4 + 1] = len0;
-    getInt32Memory0()[arg0 / 4 + 0] = ptr0;
-};
-;
-module.exports.__wbindgen_error_new = function(arg0, arg1) {
-    const ret = new Error(getStringFromWasm0(arg0, arg1));
-    return addHeapObject(ret);
-};
-;
-module.exports.__wbg_parse_3ac95b51fc312db8 = function() {
-    return handleError(function (arg0, arg1) {
-        const ret = JSON.parse(getStringFromWasm0(arg0, arg1));
-        return addHeapObject(ret);
-    }, arguments) };
-;
-module.exports.__wbindgen_throw = function(arg0, arg1) {
-    throw new Error(getStringFromWasm0(arg0, arg1));
-};
-;
-
-
-
-/***/ }),
-
 /***/ 515:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
@@ -25148,8 +24866,8 @@ module.exports = JSON.parse('[[[0,44],"disallowed_STD3_valid"],[[45,46],"valid"]
 /******/ 		}
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = __webpack_module_cache__[moduleId] = {
-/******/ 			id: moduleId,
-/******/ 			loaded: false,
+/******/ 			// no module.id needed
+/******/ 			// no module.loaded needed
 /******/ 			exports: {}
 /******/ 		};
 /******/ 	
@@ -25162,23 +24880,11 @@ module.exports = JSON.parse('[[[0,44],"disallowed_STD3_valid"],[[45,46],"valid"]
 /******/ 			if(threw) delete __webpack_module_cache__[moduleId];
 /******/ 		}
 /******/ 	
-/******/ 		// Flag the module as loaded
-/******/ 		module.loaded = true;
-/******/ 	
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
 /******/ 	}
 /******/ 	
 /************************************************************************/
-/******/ 	/* webpack/runtime/node module decorator */
-/******/ 	(() => {
-/******/ 		__nccwpck_require__.nmd = (module) => {
-/******/ 			module.paths = [];
-/******/ 			if (!module.children) module.children = [];
-/******/ 			return module;
-/******/ 		};
-/******/ 	})();
-/******/ 	
 /******/ 	/* webpack/runtime/compat */
 /******/ 	
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
@@ -25192,7 +24898,7 @@ const axios = __nccwpck_require__(515);
 const core = __nccwpck_require__(8864);
 const github = __nccwpck_require__(6366);
 
-const { Tokenizer } = __nccwpck_require__(8294);
+const {encode } = __nccwpck_require__(9459)
 
 const { Configuration, OpenAIApi } = __nccwpck_require__(7142);
 
@@ -25279,9 +24985,8 @@ try {
       const compare_data = compareResponse.data;
       const changes = compare_data.files;
 
-      const tokenizer = new Tokenizer();
-      const tokens = tokenizer.tokenize(changes);
-      const tokenCount = tokens.length;
+      const encoded = encode(changes)
+      const tokenCount = encoded.length;
 
       console.log(`Token count: ${tokenCount}`);
 

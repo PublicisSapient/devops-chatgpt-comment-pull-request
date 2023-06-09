@@ -3,7 +3,7 @@ const axios = require('axios');
 const core = require('@actions/core');
 const github = require('@actions/github');
 
-const { Tokenizer } = require('@dqbd/tiktoken');
+const {encode } = require('gpt-3-encoder')
 
 const { Configuration, OpenAIApi } = require("openai");
 
@@ -90,9 +90,8 @@ try {
       const compare_data = compareResponse.data;
       const changes = compare_data.files;
 
-      const tokenizer = new Tokenizer();
-      const tokens = tokenizer.tokenize(changes);
-      const tokenCount = tokens.length;
+      const encoded = encode(changes)
+      const tokenCount = encoded.length;
 
       console.log(`Token count: ${tokenCount}`);
 
