@@ -24990,35 +24990,37 @@ try {
       console.log('Prompt Token Count:', tokens);
       console.log('Max Prompt Tokens: ', max_prompt_tokens);
 
-      if (tokens < max_prompt_tokens) {
-        return generate_explanation(changes);
-      } else {
+      if (tokens > max_prompt_tokens) {
         console.log(`The number of prompt tokens ${tokens} has exceeded the maximum allowed ${max_prompt_tokens}`)
         const explanation = 'skipping comment';
         return explanation 
-      }
-    })
-    .then((explanation) => {
-      console.log(explanation.split('-').join('\n'));
-
-      const octokit = new Octokit({ auth: token });
-      const comment = `Explanation of Changes (Generated via OpenAI):\n\n${JSON.stringify(explanation)}`;
-      async function create_comment() {
-        const newComment = await octokit.issues.createComment({
-          ...githubContext.repo,
-          issue_number: githubContext.issue.number,
-          body: comment
-        });
-      
-        console.log(`Comment added: ${newComment.data.html_url}`);
-      }
-
-      if ( explanation == 'skipping comment') {
-        console.log('Skipping Comment due to Max Tokens')
+      } else if (tokens + 256 > 4096) {
+        console.log('Splitting Requests')
       } else {
-        create_comment();
+        // return generate_explanation(changes);
       }
     })
+    // .then((explanation) => {
+    //   console.log(explanation.split('-').join('\n'));
+
+      // const octokit = new Octokit({ auth: token });
+      // const comment = `Explanation of Changes (Generated via OpenAI):\n\n${JSON.stringify(explanation)}`;
+      // async function create_comment() {
+      //   const newComment = await octokit.issues.createComment({
+      //     ...githubContext.repo,
+      //     issue_number: githubContext.issue.number,
+      //     body: comment
+      //   });
+      
+      //   console.log(`Comment added: ${newComment.data.html_url}`);
+      // }
+
+      // if ( explanation == 'skipping comment') {
+      //   console.log('Skipping Comment due to Max Tokens')
+      // } else {
+      //   create_comment();
+      // }
+    // })
     .catch((error) => {
       console.error(error);
     });
