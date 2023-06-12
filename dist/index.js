@@ -24898,7 +24898,7 @@ const axios = __nccwpck_require__(515);
 const core = __nccwpck_require__(8864);
 const github = __nccwpck_require__(6366);
 
-const { encode } = __nccwpck_require__(9459)
+const { encode, decode } = __nccwpck_require__(9459)
 
 const { Configuration, OpenAIApi } = __nccwpck_require__(7142);
 
@@ -24986,7 +24986,7 @@ try {
       const changes = compare_data.files;
 
       const tokens = encode(JSON.stringify(changes)).length;
-      const inputString = JSON.stringify(changes);
+      const inputString = encode(JSON.stringify(changes));
       const max_prompt_tokens = core.getInput('max-prompt-tokens');
       console.log('Prompt Token Count:', tokens);
       console.log('Max Prompt Tokens: ', max_prompt_tokens);
@@ -24997,7 +24997,7 @@ try {
         for ( let i=0; i < totalTokens; i += segmentSize) {
           segments.push(inputString.slice(i, i + segmentSize));
         }
-        return segments;
+        return decode(segments);
       }
 
       const segments = splitStringIntoSegments(inputString, tokens);

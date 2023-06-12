@@ -3,7 +3,7 @@ const axios = require('axios');
 const core = require('@actions/core');
 const github = require('@actions/github');
 
-const { encode } = require('gpt-3-encoder')
+const { encode, decode } = require('gpt-3-encoder')
 
 const { Configuration, OpenAIApi } = require("openai");
 
@@ -91,7 +91,7 @@ try {
       const changes = compare_data.files;
 
       const tokens = encode(JSON.stringify(changes)).length;
-      const inputString = JSON.stringify(changes);
+      const inputString = encode(JSON.stringify(changes));
       const max_prompt_tokens = core.getInput('max-prompt-tokens');
       console.log('Prompt Token Count:', tokens);
       console.log('Max Prompt Tokens: ', max_prompt_tokens);
@@ -102,7 +102,7 @@ try {
         for ( let i=0; i < totalTokens; i += segmentSize) {
           segments.push(inputString.slice(i, i + segmentSize));
         }
-        return segments;
+        return decode(segments);
       }
 
       const segments = splitStringIntoSegments(inputString, tokens);
