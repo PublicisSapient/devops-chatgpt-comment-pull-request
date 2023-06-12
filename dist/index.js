@@ -24913,6 +24913,12 @@ const openai = new OpenAIApi(configuration);
 
 // Function to generate the explaination of the changes using open api.
 async function generate_explanation(part, totalparts, changes) {
+  const diff = JSON.stringify(changes)
+  if (part != totalparts){
+    const prompt = `This is part ${part} of ${totalparts}. Just receive and acknowledge as Part ${part}/${totalparts} \n\n${diff}`;
+  } else {
+    const prompt = `This is part ${part} of ${totalparts}. Given the diff of all parts. Summarize the changes in 200 words or less\n\n${diff}`;
+  }
   // console.log('The Prompt')
   // console.log(JSON.stringify(prompt))
 
@@ -24926,16 +24932,8 @@ async function generate_explanation(part, totalparts, changes) {
     presence_penalty: 0,
   });
 
-  const diff = JSON.stringify(changes)
-
-  if (part != totalparts){
-    const prompt = `This is part ${part} of ${totalparts}. Just receive and acknowledge as Part ${part}/${totalparts} \n\n${diff}`;
-    return
-  } else {
-    const prompt = `This is part ${part} of ${totalparts}. Given the diff of all parts. Summarize the changes in 200 words or less\n\n${diff}`;
-    const explanation = response.data.choices[0].text.trim();
-    return explanation;
-  }
+  const explanation = response.data.choices[0].text.trim();
+  return explanation;
 }
 
 try {
