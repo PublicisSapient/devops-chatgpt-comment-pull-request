@@ -96,7 +96,7 @@ try {
       console.log('Prompt Token Count:', tokens);
       console.log('Max Prompt Tokens: ', max_prompt_tokens);
 
-      function splitStringIntoSegments(inputString, totalTokens, segmentSize = 4096) {
+      function splitStringIntoSegments(inputString, totalTokens, segmentSize = 3096) {
         const segments = [];
 
         for ( let i=0; i < totalTokens; i += segmentSize) {
