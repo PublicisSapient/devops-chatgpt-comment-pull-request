@@ -25000,7 +25000,7 @@ try {
         return segments;
       }
 
-      const segments = decode(splitStringIntoSegments(inputString, tokens));
+      const segments = splitStringIntoSegments(inputString, tokens);
       console.log(segments);
 
       for (let i = 0; i < segments.length; i++) {
