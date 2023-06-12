@@ -101,7 +101,11 @@ try {
         return explanation 
       } else if (tokens + 256 > 4096) {
         console.log('Splitting Requests');
-        console.log(changes);
+        changesJSON = JSON.parse(changes);
+        // for ( let key in changesJSON) {
+        //   console.log(`${key}: ${changesJSON[key]}`);
+        // }
+        console.log(changesJSON);
 
       } else {
         // return generate_explanation(changes);
