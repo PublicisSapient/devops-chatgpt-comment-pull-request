@@ -24986,26 +24986,39 @@ try {
       const changes = compare_data.files;
 
       const tokens = encode(JSON.stringify(changes)).length;
+      const inputString = encode(JSON.stringify(changes));
       const max_prompt_tokens = core.getInput('max-prompt-tokens');
       console.log('Prompt Token Count:', tokens);
       console.log('Max Prompt Tokens: ', max_prompt_tokens);
 
-      if (tokens > max_prompt_tokens) {
-        console.log(`The number of prompt tokens ${tokens} has exceeded the maximum allowed ${max_prompt_tokens}`)
-        const explanation = 'skipping comment';
-        return explanation 
-      } else if (tokens + 256 > 4096) {
-        console.log('Splitting Requests');
-        for (let i = 0; i < changes.length; i++) {
-          let obj = changes[i]
-          console.log('File Tokens:', encode(JSON.stringify(obj)).length)
-          console.log(obj);
-        }
-        // console.log(changes);
+      function splitStringIntoSegments(inputString, totalTokens, segmentSize = 4096) {
+        const segments = [];
 
-      } else {
-        // return generate_explanation(changes);
+        for ( let i=0; i < totalTokens; i += segmentSize) {
+          segments.push(inputString.slice(i, i + segmentSize));
+        }
+        return segments;
       }
+
+      const segments = splitStringIntoSegments(inputString, tokens);
+      console.log(segments);
+
+      // if (tokens > max_prompt_tokens) {
+      //   console.log(`The number of prompt tokens ${tokens} has exceeded the maximum allowed ${max_prompt_tokens}`)
+      //   const explanation = 'skipping comment';
+      //   return explanation 
+      // } else if (tokens + 256 > 4096) {
+      //   console.log('Splitting Requests');
+      //   for (let i = 0; i < changes.length; i++) {
+      //     let obj = changes[i]
+      //     console.log('File Tokens:', encode(JSON.stringify(obj)).length)
+      //     console.log(obj);
+      //   }
+      //   // console.log(changes);
+
+      // } else {
+      //   // return generate_explanation(changes);
+      // }
     })
     // .then((explanation) => {
     //   console.log(explanation.split('-').join('\n'));
