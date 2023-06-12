@@ -25001,7 +25001,13 @@ try {
       }
 
       const segments = splitStringIntoSegments(inputString, tokens);
-      console.log(segments);
+      // console.log(segments);
+
+      for (let i = 0; i < segments.length; i++) {
+        let obj = segments[i]
+        console.log('File Tokens:', encode(JSON.stringify(obj)).length)
+        console.log(obj);
+      }
 
       // if (tokens > max_prompt_tokens) {
       //   console.log(`The number of prompt tokens ${tokens} has exceeded the maximum allowed ${max_prompt_tokens}`)
