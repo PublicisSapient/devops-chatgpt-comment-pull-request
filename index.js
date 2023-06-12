@@ -106,7 +106,7 @@ try {
       }
 
       const segments = splitStringIntoSegments(inputString, tokens);
-      console.log(segments);
+      console.log(decode(segments));
 
       for (let i = 0; i < segments.length; i++) {
         let obj = segments[i]
