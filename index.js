@@ -102,10 +102,10 @@ try {
         for ( let i=0; i < totalTokens; i += segmentSize) {
           segments.push(inputString.slice(i, i + segmentSize));
         }
-        return decode(segments);
+        return segments;
       }
 
-      const segments = splitStringIntoSegments(inputString, tokens);
+      const segments = decode(splitStringIntoSegments(inputString, tokens));
       // console.log(segments);
 
       for (let i = 0; i < segments.length; i++) {
