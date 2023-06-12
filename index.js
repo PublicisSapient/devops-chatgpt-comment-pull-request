@@ -16,7 +16,7 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration);
 
 
-// Function to generate the explaination of the changes using open api.
+// Function to generate the explanation of the changes using open api.
 async function generate_explanation(changes) {
   const diff = JSON.stringify(changes)
   const prompt = `Given the below diff. Summarize the changes in 200 words or less:\n\n${diff}`;
@@ -28,7 +28,7 @@ async function generate_explanation(changes) {
     model: "text-davinci-003",
     prompt: prompt,
     temperature: 1,
-    max_tokens: 256,
+    max_tokens: 4096, // Maximum response tokens allowed
     top_p: 1,
     frequency_penalty: 0,
     presence_penalty: 0,
@@ -90,17 +90,18 @@ try {
       const compare_data = compareResponse.data;
       const changes = compare_data.files;
 
-      const tokens = encode(JSON.stringify(changes)).length;
-      const max_prompt_tokens = core.getInput('max-prompt-tokens');
-      console.log('Prompt Token Count:', tokens);
-      console.log('Max Prompt Tokens: ', max_prompt_tokens);
+      const promptTokens = encode(JSON.stringify(changes)).length;
+      const maxPromptTokens = 4096; // Maximum prompt tokens allowed
+      const maxResponseTokens = 4096; // Maximum response tokens allowed
+      console.log('Prompt Token Count:', promptTokens);
+      console.log('Max Prompt Tokens: ', maxPromptTokens);
 
-      if (tokens < max_prompt_tokens) {
+      if (promptTokens < maxPromptTokens) {
         return generate_explanation(changes);
       } else {
-        console.log(`The number of prompt tokens ${tokens} has exceeded the maximum allowed ${max_prompt_tokens}`)
+        console.log(`The number of prompt tokens ${promptTokens} has exceeded the maximum allowed ${maxPromptTokens}`);
         const explanation = 'skipping comment';
-        return explanation 
+        return explanation;
       }
     })
     .then((explanation) => {
@@ -114,14 +115,23 @@ try {
           issue_number: githubContext.issue.number,
           body: comment
         });
-      
+
         console.log(`Comment added: ${newComment.data.html_url}`);
       }
 
-      if ( explanation == 'skipping comment') {
-        console.log('Skipping Comment due to Max Tokens')
+      if (explanation == 'skipping comment') {
+        console.log('Skipping Comment due to Max Tokens');
       } else {
-        create_comment();
+        const responseTokens = encode(explanation).length;
+        console.log('Response Token Count:', responseTokens);
+        console.log('Max Response Tokens:', maxResponseTokens);
+
+        if (responseTokens <= maxResponseTokens) {
+          create_comment();
+        } else {
+          console.log(`The number of response tokens ${responseTokens} has exceeded the maximum allowed ${maxResponseTokens}`);
+          console.log('Skipping Comment due to Max Tokens');
+        }
       }
     })
     .catch((error) => {
