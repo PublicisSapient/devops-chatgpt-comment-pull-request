@@ -24912,10 +24912,7 @@ const openai = new OpenAIApi(configuration);
 
 
 // Function to generate the explaination of the changes using open api.
-async function generate_explanation(changes) {
-  const diff = JSON.stringify(changes)
-  const prompt = `Given the below diff. Summarize the changes in 200 words or less:\n\n${diff}`;
-
+async function generate_explanation(part, totalparts, changes) {
   // console.log('The Prompt')
   // console.log(JSON.stringify(prompt))
 
@@ -24929,8 +24926,16 @@ async function generate_explanation(changes) {
     presence_penalty: 0,
   });
 
-  const explanation = response.data.choices[0].text.trim();
-  return explanation;
+  const diff = JSON.stringify(changes)
+
+  if (part != totalparts){
+    const prompt = `This is part ${part} of ${totalparts}. Just receive and acknowledge as Part ${part}/${totalparts} \n\n${diff}`;
+    return
+  } else {
+    const prompt = `This is part ${part} of ${totalparts}. Given the diff of all parts. Summarize the changes in 200 words or less\n\n${diff}`;
+    const explanation = response.data.choices[0].text.trim();
+    return explanation;
+  }
 }
 
 try {
@@ -25005,9 +25010,12 @@ try {
 
       for (let i = 0; i < segments.length; i++) {
         let obj = decode(segments[i])
+        let part = i+1
+        let totalparts = segments.length
         console.log('File Tokens:', encode(JSON.stringify(obj)).length)
-        console.log(`This is part ${i+1} of ${segments.length}`)
-        console.log((obj));
+        console.log(`This is part ${part} of ${totalparts}`)
+        return generate_explanation(part, totalparts, changes)
+        // console.log((obj));
       }
 
       // if (tokens > max_prompt_tokens) {
