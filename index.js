@@ -111,7 +111,7 @@ try {
       for (let i = 0; i < segments.length; i++) {
         let obj = decode(segments[i])
         console.log('File Tokens:', encode(JSON.stringify(obj)).length)
-        console.log(`This is part ${i} of ${segments.length}`)
+        console.log(`This is part ${i++} of ${segments.length}`)
         console.log((obj));
       }
 
