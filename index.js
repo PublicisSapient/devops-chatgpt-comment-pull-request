@@ -91,7 +91,7 @@ try {
       const changes = compare_data.files;
 
       const tokens = encode(JSON.stringify(changes)).length;
-      const inputString = encode(JSON.stringify(changes));
+      const inputString = JSON.stringify(changes);
       const max_prompt_tokens = core.getInput('max-prompt-tokens');
       console.log('Prompt Token Count:', tokens);
       console.log('Max Prompt Tokens: ', max_prompt_tokens);
