@@ -24995,7 +24995,9 @@ try {
         const explanation = 'skipping comment';
         return explanation 
       } else if (tokens + 256 > 4096) {
-        console.log('Splitting Requests')
+        console.log('Splitting Requests');
+        console.log(changes);
+
       } else {
         // return generate_explanation(changes);
       }
