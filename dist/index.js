@@ -24998,7 +24998,8 @@ try {
         console.log('Splitting Requests');
         for (let i = 0; i < changes.length; i++) {
           let obj = changes[i]
-          console.log(obj.filename);
+          console.log('File Tokens:', encode(JSON.stringify(obj)).length)
+          console.log(obj);
         }
         // console.log(changes);
 
