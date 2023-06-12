@@ -25004,9 +25004,9 @@ try {
       console.log(decode(segments));
 
       for (let i = 0; i < segments.length; i++) {
-        let obj = segments[i]
+        let obj = decode(segments[i])
         console.log('File Tokens:', encode(JSON.stringify(obj)).length)
-        console.log(decode(obj));
+        console.log((obj));
       }
 
       // if (tokens > max_prompt_tokens) {
