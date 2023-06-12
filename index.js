@@ -102,7 +102,7 @@ try {
       } else if (tokens + 256 > 4096) {
         console.log('Splitting Requests');
         for (let i = 0; i < changes.length; i++) {
-          let obj = json[i]
+          let obj = changes[i]
           console.log(obj.id);
         }
         // console.log(changes);
