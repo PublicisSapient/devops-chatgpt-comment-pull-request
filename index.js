@@ -99,16 +99,19 @@ try {
       // If the number of comments is 0 get the base and head commitIds
       // Else get the branch name and then get the head sha and the parent sha
 
+      let head_commit_sha;
+      let base_commit_sha;
+
       if (num_comments == 0) {
-        const base_commit_sha = pull_request_data.base.sha;
-        const head_commit_sha = pull_request_data.head.sha;
+        let base_commit_sha = pull_request_data.base.sha;
+        let head_commit_sha = pull_request_data.head.sha;
       } else {
         const pull_request_branch = pull_request_data.head.ref;
         const branch_request_url = `https://api.github.com/repos/${repository}/branches/${pull_request_branch}`;
         const branch_response = axios.get(branch_request_url, {headers: headers });
         const branch_response_data = branch_response.data;
-        const head_commit_sha = pull_request_data.head.sha;
-        const base_commit_sha = branch_response_data.commit.parents[0].sha;
+        let head_commit_sha = pull_request_data.head.sha;
+        let base_commit_sha = branch_response_data.commit.parents[0].sha;
       }
 
       console.log('Head Commit:', head_commit_sha);
