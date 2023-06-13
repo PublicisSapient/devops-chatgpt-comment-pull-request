@@ -2,7 +2,8 @@
 const axios = require('axios');
 const core = require('@actions/core');
 const github = require('@actions/github');
-const { encode } = require('gpt-3-encoder')
+const { encode, decode } = require('gpt-3-encoder')
+
 const { Configuration, OpenAIApi } = require("openai");
 const { Octokit } = require('@octokit/rest');
 const { context: githubContext } = require('@actions/github');
@@ -15,22 +16,61 @@ const openai = new OpenAIApi(configuration);
 
 // Function to generate the explanation of the changes using OpenAI API
 async function generate_explanation(changes) {
-  const diff = JSON.stringify(changes);
-  const prompt = `Given the below diff. Summarize the changes in 200 words or less:\n\n${diff}`;
+  const encodedDiff = encode(JSON.stringify(changes));
+  const totalTokens = encode(JSON.stringify(changes)).length;
+  
+  // Function to split the incoming changes into smaller chunks.
+  function splitStringIntoSegments(encodedDiff, totalTokens, segmentSize = 3096) {
+    const segments = [];
 
-  // Generate completion using OpenAI API
-  const response = await openai.createCompletion({
-    model: "text-davinci-003",
-    prompt: prompt,
-    temperature: 1,
-    max_tokens: 4096, // Maximum response tokens allowed
-    top_p: 1,
-    frequency_penalty: 0,
-    presence_penalty: 0,
-  });
+    for ( let i=0; i < totalTokens; i += segmentSize) {
+      segments.push(encodedDiff.slice(i, i + segmentSize));
+    }
+    return segments;
+  }
 
-  const explanation = response.data.choices[0].text.trim();
-  return explanation;
+  const segments = splitStringIntoSegments(encodedDiff, totalTokens);
+
+  // Loop through each segment and send the request to openai.
+  // If the segment is not the last segment just acknowledge and wait. Otherwise return the response. 
+  for (let i = 0; i < segments.length; i++) {
+    let obj = decode(segments[i])
+    let part = i+1
+    let totalparts = segments.length
+    console.log('Segment Tokens:', encode(JSON.stringify(obj)).length)
+    console.log(`This is part ${part} of ${totalparts}`)
+
+    if (part != totalparts){
+      let prompt = `This is part ${part} of ${totalparts}. Just receive and acknowledge as Part ${part}/${totalparts} \n\n${obj}`;
+      console.log(prompt);
+
+      await openai.createCompletion({
+        model: "text-davinci-003",
+        prompt: prompt,
+        temperature: 1,
+        max_tokens: 256,
+        top_p: 1,
+        frequency_penalty: 0,
+        presence_penalty: 0,
+      });
+    } else {
+      let prompt = `This is part ${part} of ${totalparts}. Given the diff of all parts. Summarize the changes in 300 words or less\n\n${obj}`;
+      console.log(prompt);
+      let response = await openai.createCompletion({
+        model: "text-davinci-003",
+        prompt: prompt,
+        temperature: 1,
+        max_tokens: 256,
+        top_p: 1,
+        frequency_penalty: 0,
+        presence_penalty: 0,
+      });
+
+      const explanation = response.data.choices[0].text.trim();
+      return explanation;
+    }
+  }
+
 }
 
 try {
@@ -51,6 +91,7 @@ try {
   axios
     .get(pull_request_url, { headers: headers })
     .then((response) => {
+      // Set Base and Head CommitIDs
       const pull_request_data = response.data;
       const base_commit_sha = pull_request_data.base.sha;
       const head_commit_sha = pull_request_data.head.sha;
@@ -66,6 +107,7 @@ try {
       ]);
     })
     .then(([baseCommitResponse, headCommitResponse]) => {
+      // Compare the Commit IDs and get a back response in JSON.
       const base_commit_data = baseCommitResponse.data;
       const head_commit_data = headCommitResponse.data;
 
@@ -80,6 +122,7 @@ try {
       return axios.get(compare_url, { headers: headers });
     })
     .then((compareResponse) => {
+      // Get the Data and output the File Changes.
       const compare_data = compareResponse.data;
       const changes = compare_data.files;
 
@@ -91,16 +134,16 @@ try {
       console.log('Prompt Token Count:', tokens);
       console.log('Max Prompt Tokens: ', max_prompt_tokens);
 
-      // Generate explanation if prompt token count is within the limit
-      if (tokens < max_prompt_tokens) {
-        return generate_explanation(changes);
-      } else {
-        console.log(`The number of prompt tokens ${tokens} has exceeded the maximum allowed ${max_prompt_tokens}`);
+      if (tokens > max_prompt_tokens) {
+        console.log(`The number of prompt tokens ${tokens} has exceeded the maximum allowed ${max_prompt_tokens}`)
         const explanation = 'skipping comment';
-        return explanation;
+        return explanation 
+      } else {
+        return generate_explanation(changes);
       }
     })
     .then((explanation) => {
+      // Create the GitHub Comment
       console.log(explanation.split('-').join('\n'));
 
       // Create a comment with the generated explanation
