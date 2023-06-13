@@ -24991,20 +24991,23 @@ try {
       // Get Number of Comments
       const num_comments = pull_request_data.comments;
 
-      return num_comments;
       // If the number of comments is 0 get the base and head commitIds
       // Else get the branch name and then get the head sha and the parent sha
 
-      // if (num_comments == 0) {
-      //   const base_commit_sha = pull_request_data.base.sha;
-      //   const head_commit_sha = pull_request_data.head.sha;
-      // } else {
-      //   const pull_request_branch = pull_request_data.head.ref;
-      //   const branch_request_url = `https://api.github.com/repos/${repository}/branches/${pull_request_branch}`;
-      //   const head_commit_sha = pull_request_data.head.sha;
-      //   const base_commit_sha = 
-      // }
+      if (num_comments == 0) {
+        const base_commit_sha = pull_request_data.base.sha;
+        const head_commit_sha = pull_request_data.head.sha;
+      } else {
+        const pull_request_branch = pull_request_data.head.ref;
+        const branch_request_url = `https://api.github.com/repos/${repository}/branches/${pull_request_branch}`;
+        const branch_response = axios.get(branch_request_url, {headers: headers });
+        const branch_response_data = branch_response.data;
+        const head_commit_sha = pull_request_data.head.sha;
+        const base_commit_sha = branch_response_data.commit.parents[0].sha;
+      }
 
+      console.log('Head Commit:', head_commit_sha);
+      console.log('Base Commit:', base_commit_sha);
       // Retrieve the file changes between the base and head commits
       // const commit_url = `https://api.github.com/repos/${repository}/commits/`;
       // const base_commit_url = commit_url + base_commit_sha;
@@ -25015,9 +25018,9 @@ try {
       //   axios.get(head_commit_url, { headers: headers }),
       // ]);
     })
-    .then((numComments) => {
-      console.log(numComments);
-    })
+    // .then((numComments) => {
+    //   console.log(numComments);
+    // })
     // .then(([baseCommitResponse, headCommitResponse]) => {
     //   // Compare the Commit IDs and get a back response in JSON.
     //   const base_commit_data = baseCommitResponse.data;
