@@ -25059,7 +25059,7 @@ try {
       if (explanation == 'skipping comment') {
         console.log('Skipping Comment due to Max Tokens');
       } else {
-        const maxResponseTokens = 4096; // Maximum response tokens allowed
+        const maxResponseTokens = core.getInput('max-prompt-tokens'); // Maximum response tokens allowed
         const responseTokens = encode(explanation).length;
         console.log('Response Token Count:', responseTokens);
         console.log('Max Response Tokens:', maxResponseTokens);
