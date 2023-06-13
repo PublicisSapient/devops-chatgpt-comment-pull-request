@@ -73,6 +73,21 @@ async function generate_explanation(changes) {
 
 }
 
+// Function to Get Parent SHA from Branch
+async function get_parent_sha(url) {
+
+  axios.get(url, {headers: headers })
+  .then(response => {
+    // console.log(response)
+    const branch_response_data = response.data;
+    console.log('Branch Response Data:', branch_response_data);
+    base_commit_sha = branch_response_data.commit.parents[0].sha;
+    console.log('Base Commit Sha:', base_commit_sha);
+    return base_commit_sha;
+})
+
+}
+
 try {
   // Get the PR number, repository, and token from the GitHub webhook payload
   const payload = JSON.stringify(github.context.payload, undefined, 2)
@@ -112,19 +127,8 @@ try {
         console.log('Number of Comments is NOT 0')
         const pull_request_branch = pull_request_data.head.ref;
         const branch_request_url = `https://api.github.com/repos/${repository}/branches/${pull_request_branch}`;
-        axios.get(branch_request_url, {headers: headers })
-          .then(response => {
-            // console.log(response)
-            const branch_response_data = response.data;
-            console.log('Branch Response Data:', branch_response_data);
-            base_commit_sha = branch_response_data.commit.parents[0].sha;
-            console.log('Base Commit Sha:', base_commit_sha);
-            return base_commit_sha;
-        })
-        .then((baseCommitSha) => {
-        base_commit_sha = baseCommitSha;
+        base_commit_sha = get_parent_sha(branch_request_url);
         head_commit_sha = pull_request_data.head.sha;
-        })
         // base_commit_sha = branch_response_data.commit.parents[0].sha;
       }
 
