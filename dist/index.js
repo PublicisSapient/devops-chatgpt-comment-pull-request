@@ -24912,28 +24912,57 @@ const openai = new OpenAIApi(configuration);
 
 
 // Function to generate the explaination of the changes using open api.
-async function generate_explanation(part, totalparts, changes) {
+async function generate_explanation(changes) {
   const diff = JSON.stringify(changes)
-  if (part != totalparts){
-    const prompt = `This is part ${part} of ${totalparts}. Just receive and acknowledge as Part ${part}/${totalparts} \n\n${diff}`;
-  } else {
-    const prompt = `This is part ${part} of ${totalparts}. Given the diff of all parts. Summarize the changes in 200 words or less\n\n${diff}`;
+  const encodedDiff = encode(JSON.stringify(changes));
+  const totalTokens = encode(JSON.stringify(changes)).length;
+
+  function splitStringIntoSegments(encodedDiff, totalTokens, segmentSize = 3096) {
+    const segments = [];
+
+    for ( let i=0; i < totalTokens; i += segmentSize) {
+      segments.push(encodedDiff.slice(i, i + segmentSize));
+    }
+    return segments;
   }
-  // console.log('The Prompt')
-  // console.log(JSON.stringify(prompt))
 
-  const response = await openai.createCompletion({
-    model: "text-davinci-003",
-    prompt: prompt,
-    temperature: 1,
-    max_tokens: 256,
-    top_p: 1,
-    frequency_penalty: 0,
-    presence_penalty: 0,
-  });
+  const segments = splitStringIntoSegments(encodedDiff, totalTokens);
 
-  const explanation = response.data.choices[0].text.trim();
-  return explanation;
+  for (let i = 0; i < segments.length; i++) {
+    let obj = decode(segments[i])
+    let part = i+1
+    let totalparts = segments.length
+    console.log('Segment Tokens:', encode(JSON.stringify(obj)).length)
+    console.log(`This is part ${part} of ${totalparts}`)
+  }
+  //   if (part != totalparts){
+  //     let prompt = `This is part ${part} of ${totalparts}. Just receive and acknowledge as Part ${part}/${totalparts} \n\n${diff}`;
+
+  //     await openai.createCompletion({
+  //       model: "text-davinci-003",
+  //       prompt: prompt,
+  //       temperature: 1,
+  //       max_tokens: 256,
+  //       top_p: 1,
+  //       frequency_penalty: 0,
+  //       presence_penalty: 0,
+  //     });
+  //   } else {
+  //     let prompt = `This is part ${part} of ${totalparts}. Given the diff of all parts. Summarize the changes in 200 words or less\n\n${diff}`;
+
+  //     let response = await openai.createCompletion({
+  //       model: "text-davinci-003",
+  //       prompt: prompt,
+  //       temperature: 1,
+  //       max_tokens: 256,
+  //       top_p: 1,
+  //       frequency_penalty: 0,
+  //       presence_penalty: 0,
+  //   }
+  // }
+
+  // const explanation = response.data.choices[0].text.trim();
+  // return explanation;
 }
 
 try {
@@ -24989,32 +25018,11 @@ try {
       const changes = compare_data.files;
 
       const tokens = encode(JSON.stringify(changes)).length;
-      const inputString = encode(JSON.stringify(changes));
       const max_prompt_tokens = core.getInput('max-prompt-tokens');
       console.log('Prompt Token Count:', tokens);
       console.log('Max Prompt Tokens: ', max_prompt_tokens);
 
-      function splitStringIntoSegments(inputString, totalTokens, segmentSize = 3096) {
-        const segments = [];
-
-        for ( let i=0; i < totalTokens; i += segmentSize) {
-          segments.push(inputString.slice(i, i + segmentSize));
-        }
-        return segments;
-      }
-
-      const segments = splitStringIntoSegments(inputString, tokens);
-      console.log(decode(segments));
-
-      for (let i = 0; i < segments.length; i++) {
-        let obj = decode(segments[i])
-        let part = i+1
-        let totalparts = segments.length
-        console.log('File Tokens:', encode(JSON.stringify(obj)).length)
-        console.log(`This is part ${part} of ${totalparts}`)
-        return generate_explanation(part, totalparts, changes)
-        // console.log((obj));
-      }
+      return generate_explanation(changes)
 
       // if (tokens > max_prompt_tokens) {
       //   console.log(`The number of prompt tokens ${tokens} has exceeded the maximum allowed ${max_prompt_tokens}`)
