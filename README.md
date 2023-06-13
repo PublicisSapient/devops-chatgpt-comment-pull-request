@@ -21,12 +21,6 @@ Before running this, ensure you have the following:
    TBD
    ```
 
-## Running the Script
-
-```
- TBD
-```
-
 The script will retrieve the pull request information and generate an explanation of the changes using the OpenAI API. If the explanation exceeds the maximum token limit or there are no changes after filtering, a comment will not be created.
 
 ## Configuration
