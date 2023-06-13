@@ -24964,6 +24964,12 @@ try {
       const base_commit_data = baseCommitResponse.data;
       const head_commit_data = headCommitResponse.data;
 
+      // Print the base_commit_data & head_commit_data
+      console.log('Base Sha');
+      console.log(baseCommitResponse.data.sha);
+      console.log('Head Sha');
+      console.log(headCommitResponse.data.sha);
+
       // Retrieve the diff and changes between the base and head commits
       const compare_url = `https://api.github.com/repos/${repository}/compare/${base_commit_data.sha}...${head_commit_data.sha}`;
       return axios.get(compare_url, { headers: headers });
@@ -24975,8 +24981,8 @@ try {
       // Calculate the token count of the prompt
       const promptTokens = encode(JSON.stringify(changes)).length;
       const maxPromptTokens = 4096; // Maximum prompt tokens allowed
-      const maxResponseTokens = 4096; // Maximum response tokens allowed
 
+      // Print Prompt Token Count & Max Prompt Tokens
       console.log('Prompt Token Count:', promptTokens);
       console.log('Max Prompt Tokens: ', maxPromptTokens);
 
@@ -25010,6 +25016,7 @@ try {
       if (explanation == 'skipping comment') {
         console.log('Skipping Comment due to Max Tokens');
       } else {
+        const maxResponseTokens = 4096; // Maximum response tokens allowed
         const responseTokens = encode(explanation).length;
         console.log('Response Token Count:', responseTokens);
         console.log('Max Response Tokens:', maxResponseTokens);
