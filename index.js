@@ -72,6 +72,17 @@ async function generateExplanation(changes) {
   }
 }
 
+// Function to Get Parent SHA from Branch
+async function getParentSha(url, headers) {
+
+  let response = await axios.get(url, {headers: headers });
+
+  const baseCommitSha = response.data.commit.parents[0].sha;
+  console.log(baseCommitSha);
+  return baseCommitSha;
+
+}
+
 try {
   // Get the PR number, repository, and token from the GitHub webhook payload
   const payload = JSON.stringify(github.context.payload, undefined, 2);
@@ -87,13 +98,50 @@ try {
     Authorization: `Bearer ${token}`,
   };
 
-  axios
-    .get(pullRequestUrl, { headers: headers })
+  axios.get(pullRequestUrl, { headers: headers })
     .then((response) => {
-      // Set Base and Head Commit IDs
+
+      // Set Base and Head CommitIDs
       const pullRequestData = response.data;
-      const baseCommitSha = pullRequestData.base.sha;
+
+      return pullRequestData
+
+    })
+    .then((pullRequestData) => {
+      const numComments = pullRequestData.comments;
       const headCommitSha = pullRequestData.head.sha;
+
+      console.log('Number of Comments:', numComments);
+      console.log('Head Sha:', headCommitSha);
+      console.log('PR URL:', pullRequestUrl);
+      console.log('PR Headers', headers);
+
+      if (numComments == 0) {
+        console.log('Number of Comments is 0')
+        console.log('Compare against base sha')
+        const baseCommitSha = pullRequestData.base.sha;
+
+        return Promise.all([
+          headCommitSha,
+          baseCommitSha,
+        ])
+      } else {
+        console.log('Number of Comments is NOT 0')
+        console.log('Compare against parent sha')
+        const pullRequestBranch = pullRequestData.head.ref;
+        const branchRequestUrl = `https://api.github.com/repos/${repository}/branches/${pullRequestBranch}`;
+        const baseCommitSha = getParentSha(branchRequestUrl, headers);
+
+        return Promise.all([
+          headCommitSha,
+          baseCommitSha,
+        ])
+      }
+
+    })
+    .then(([headCommitSha, baseCommitSha]) => {
+      console.log('Head Commit:', headCommitSha);
+      console.log('Base Commit:', baseCommitSha);
 
       // Retrieve the file changes between the base and head commits
       const commitUrl = `https://api.github.com/repos/${repository}/commits/`;
@@ -104,17 +152,12 @@ try {
         axios.get(baseCommitUrl, { headers: headers }),
         axios.get(headCommitUrl, { headers: headers }),
       ]);
+
     })
     .then(([baseCommitResponse, headCommitResponse]) => {
       // Compare the Commit IDs and get a back response in JSON.
       const baseCommitData = baseCommitResponse.data;
       const headCommitData = headCommitResponse.data;
-
-      // Print the baseCommitData & headCommitData
-      console.log('Base Sha');
-      console.log(baseCommitResponse.data.sha);
-      console.log('Head Sha');
-      console.log(headCommitResponse.data.sha);
 
       // Retrieve the diff and changes between the base and head commits
       const compareUrl = `https://api.github.com/repos/${repository}/compare/${baseCommitData.sha}...${headCommitData.sha}`;
