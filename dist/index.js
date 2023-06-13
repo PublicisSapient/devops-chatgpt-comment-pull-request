@@ -25000,9 +25000,7 @@ try {
       // Set Base and Head CommitIDs
       const pull_request_data = response.data;
 
-      return Promise.all([
-        pull_request_data
-      ]);
+      return pull_request_data
 
       // If the number of comments is 0 get the base and head commitIds
       // Else get the branch name and then get the head sha and the parent sha
