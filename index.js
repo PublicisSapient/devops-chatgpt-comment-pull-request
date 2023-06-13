@@ -11,6 +11,7 @@ const { context: githubContext } = require('@actions/github');
 // Create an OpenAI instance using the provided API key
 const configuration = new Configuration({
   apiKey: core.getInput('open-api-key')
+
 });
 const openai = new OpenAIApi(configuration);
 
@@ -42,28 +43,34 @@ async function generate_explanation(changes) {
 
     if (part != totalparts){
       let prompt = `This is part ${part} of ${totalparts}. Just receive and acknowledge as Part ${part}/${totalparts} \n\n${obj}`;
+      let model = core.getInput('model');
+      let temperature = core.getInput('temperature');
+      let max_tokens = core.getInput('max-tokens');
+      let top_p = core.getInput('top_p');
+      let frequency_penalty = core.getInput('frequency-penalty');
+      let presence_penalty = core.getInput('presence-penalty');
       console.log(prompt);
 
       await openai.createCompletion({
-        model: "text-davinci-003",
+        model: model,
         prompt: prompt,
-        temperature: 1,
-        max_tokens: 256,
-        top_p: 1,
-        frequency_penalty: 0,
-        presence_penalty: 0,
+        temperature: temperature,
+        max_tokens: max_tokens,
+        top_p: top_p,
+        frequency_penalty: frequency_penalty,
+        presence_penalty: presence_penalty,
       });
     } else {
       let prompt = `This is part ${part} of ${totalparts}. Given the diff of all parts. Summarize the changes in 300 words or less\n\n${obj}`;
       console.log(prompt);
       let response = await openai.createCompletion({
-        model: "text-davinci-003",
+        model: model,
         prompt: prompt,
-        temperature: 1,
-        max_tokens: 256,
-        top_p: 1,
-        frequency_penalty: 0,
-        presence_penalty: 0,
+        temperature: temperature,
+        max_tokens: max_tokens,
+        top_p: top_p,
+        frequency_penalty: frequency_penalty,
+        presence_penalty: presence_penalty,
       });
 
       const explanation = response.data.choices[0].text.trim();
