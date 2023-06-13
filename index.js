@@ -53,7 +53,7 @@ async function generate_explanation(changes) {
         presence_penalty: 0,
       });
     } else {
-      let prompt = `This is part ${part} of ${totalparts}. Given the diff of all parts. Summarize the changes in 200 words or less\n\n${obj}`;
+      let prompt = `This is part ${part} of ${totalparts}. Given the diff of all parts. Summarize the changes in 300 words or less\n\n${obj}`;
       console.log(prompt);
       let response = await openai.createCompletion({
         model: "text-davinci-003",
@@ -143,23 +143,23 @@ try {
     .then((explanation) => {
       console.log(explanation.split('-').join('\n'));
 
-      // const octokit = new Octokit({ auth: token });
-      // const comment = `Explanation of Changes (Generated via OpenAI):\n\n${JSON.stringify(explanation)}`;
-      // async function create_comment() {
-      //   const newComment = await octokit.issues.createComment({
-      //     ...githubContext.repo,
-      //     issue_number: githubContext.issue.number,
-      //     body: comment
-      //   });
+      const octokit = new Octokit({ auth: token });
+      const comment = `Explanation of Changes (Generated via OpenAI):\n\n${JSON.stringify(explanation)}`;
+      async function create_comment() {
+        const newComment = await octokit.issues.createComment({
+          ...githubContext.repo,
+          issue_number: githubContext.issue.number,
+          body: comment
+        });
       
-      //   console.log(`Comment added: ${newComment.data.html_url}`);
-      // }
+        console.log(`Comment added: ${newComment.data.html_url}`);
+      }
 
-      // if ( explanation == 'skipping comment') {
-      //   console.log('Skipping Comment due to Max Tokens')
-      // } else {
-      //   create_comment();
-      // }
+      if ( explanation == 'skipping comment') {
+        console.log('Skipping Comment due to Max Tokens')
+      } else {
+        create_comment();
+      }
     })
     .catch((error) => {
       console.error(error);
