@@ -25001,6 +25001,8 @@ try {
         console.log('Number of Comments is 0')
         let base_commit_sha = pull_request_data.base.sha;
         let head_commit_sha = pull_request_data.head.sha;
+        console.log('Head Commit:', head_commit_sha);
+        console.log('Base Commit:', base_commit_sha);
       } else {
         console.log('Number of Comments is NOT 0')
         const pull_request_branch = pull_request_data.head.ref;
