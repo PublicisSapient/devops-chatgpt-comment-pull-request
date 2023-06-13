@@ -24936,7 +24936,7 @@ async function generate_explanation(changes) {
     console.log(`This is part ${part} of ${totalparts}`)
 
     if (part != totalparts){
-      let prompt = `This is part ${part} of ${totalparts}. Just receive and acknowledge as Part ${part}/${totalparts} \n\n${diff}`;
+      let prompt = `This is part ${part} of ${totalparts}. Just receive and acknowledge as Part ${part}/${totalparts} \n\n${obj}`;
       console.log(prompt);
 
       await openai.createCompletion({
@@ -24949,7 +24949,7 @@ async function generate_explanation(changes) {
         presence_penalty: 0,
       });
     } else {
-      let prompt = `This is part ${part} of ${totalparts}. Given the diff of all parts. Summarize the changes in 200 words or less\n\n${diff}`;
+      let prompt = `This is part ${part} of ${totalparts}. Given the diff of all parts. Summarize the changes in 200 words or less\n\n${obj}`;
       console.log(prompt);
       let response = await openai.createCompletion({
         model: "text-davinci-003",
@@ -24960,7 +24960,7 @@ async function generate_explanation(changes) {
         frequency_penalty: 0,
         presence_penalty: 0,
       });
-      
+
       const explanation = response.data.choices[0].text.trim();
       console.log(explanation);
     }
