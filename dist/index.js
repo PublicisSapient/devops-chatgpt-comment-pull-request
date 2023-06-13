@@ -24998,9 +24998,11 @@ try {
       let base_commit_sha;
 
       if (num_comments == 0) {
+        console.log('Number of Comments is 0')
         let base_commit_sha = pull_request_data.base.sha;
         let head_commit_sha = pull_request_data.head.sha;
       } else {
+        console.log('Number of Comments is NOT 0')
         const pull_request_branch = pull_request_data.head.ref;
         const branch_request_url = `https://api.github.com/repos/${repository}/branches/${pull_request_branch}`;
         const branch_response = axios.get(branch_request_url, {headers: headers });
