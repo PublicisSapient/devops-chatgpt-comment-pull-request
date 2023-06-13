@@ -40,31 +40,32 @@ async function generate_explanation(changes) {
     console.log('Segment Tokens:', encode(JSON.stringify(obj)).length)
     console.log(`This is part ${part} of ${totalparts}`)
   }
-  //   if (part != totalparts){
-  //     let prompt = `This is part ${part} of ${totalparts}. Just receive and acknowledge as Part ${part}/${totalparts} \n\n${diff}`;
+    if (part != totalparts){
+      let prompt = `This is part ${part} of ${totalparts}. Just receive and acknowledge as Part ${part}/${totalparts} \n\n${diff}`;
+      console.log(prompt);
 
-  //     await openai.createCompletion({
-  //       model: "text-davinci-003",
-  //       prompt: prompt,
-  //       temperature: 1,
-  //       max_tokens: 256,
-  //       top_p: 1,
-  //       frequency_penalty: 0,
-  //       presence_penalty: 0,
-  //     });
-  //   } else {
-  //     let prompt = `This is part ${part} of ${totalparts}. Given the diff of all parts. Summarize the changes in 200 words or less\n\n${diff}`;
-
-  //     let response = await openai.createCompletion({
-  //       model: "text-davinci-003",
-  //       prompt: prompt,
-  //       temperature: 1,
-  //       max_tokens: 256,
-  //       top_p: 1,
-  //       frequency_penalty: 0,
-  //       presence_penalty: 0,
-  //   }
-  // }
+      // await openai.createCompletion({
+      //   model: "text-davinci-003",
+      //   prompt: prompt,
+      //   temperature: 1,
+      //   max_tokens: 256,
+      //   top_p: 1,
+      //   frequency_penalty: 0,
+      //   presence_penalty: 0,
+      // });
+    } else {
+      let prompt = `This is part ${part} of ${totalparts}. Given the diff of all parts. Summarize the changes in 200 words or less\n\n${diff}`;
+      console.log(prompt);
+    //   let response = await openai.createCompletion({
+    //     model: "text-davinci-003",
+    //     prompt: prompt,
+    //     temperature: 1,
+    //     max_tokens: 256,
+    //     top_p: 1,
+    //     frequency_penalty: 0,
+    //     presence_penalty: 0,
+    // }
+  }
 
   // const explanation = response.data.choices[0].text.trim();
   // return explanation;
