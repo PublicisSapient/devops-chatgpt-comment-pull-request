@@ -24993,7 +24993,7 @@ try {
     Authorization: `Bearer ${token}`,
   };
 
-  axios.get(pullRequestNumber, { headers: headers })
+  axios.get(pullRequestUrl, { headers: headers })
     .then((response) => {
 
       // Set Base and Head CommitIDs
