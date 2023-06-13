@@ -107,39 +107,6 @@ try {
 
       return pull_request_data
 
-      // If the number of comments is 0 get the base and head commitIds
-      // Else get the branch name and then get the head sha and the parent sha
-
-      // let head_commit_sha;
-      // let base_commit_sha;
-
-      // if (num_comments == 0) {
-      //   console.log('Number of Comments is 0')
-      //   base_commit_sha = pull_request_data.base.sha;
-      //   head_commit_sha = pull_request_data.head.sha;
-      //   console.log('Head Commit:', head_commit_sha);
-      //   console.log('Base Commit:', base_commit_sha);
-      // } else {
-      //   console.log('Number of Comments is NOT 0')
-      //   const pull_request_branch = pull_request_data.head.ref;
-      //   const branch_request_url = `https://api.github.com/repos/${repository}/branches/${pull_request_branch}`;
-      //   base_commit_sha = get_parent_sha(branch_request_url, headers);
-      //   console.log('Base Commit Sha:', base_commit_sha);
-      //   head_commit_sha = pull_request_data.head.sha;
-      //   // base_commit_sha = branch_response_data.commit.parents[0].sha;
-      // }
-
-      // console.log('Head Commit:', head_commit_sha);
-      // console.log('Base Commit:', base_commit_sha);
-      // Retrieve the file changes between the base and head commits
-      // const commit_url = `https://api.github.com/repos/${repository}/commits/`;
-      // const base_commit_url = commit_url + base_commit_sha;
-      // const head_commit_url = commit_url + head_commit_sha;
-
-      // return Promise.all([
-      //   axios.get(base_commit_url, { headers: headers }),
-      //   axios.get(head_commit_url, { headers: headers }),
-      // ]);
     })
     .then((pullRequestData) => {
       const num_comments = pullRequestData.comments;
