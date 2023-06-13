@@ -15,7 +15,7 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration);
 
 // Function to generate the explanation of the changes using OpenAI API
-async function generate_explanation(changes) {
+async function generateExplanation(changes) {
   const encodedDiff = encode(JSON.stringify(changes));
   const totalTokens = encode(JSON.stringify(changes)).length;
 
@@ -31,17 +31,17 @@ async function generate_explanation(changes) {
 
   const segments = splitStringIntoSegments(encodedDiff, totalTokens);
 
-  // Loop through each segment and send the request to openai.
-  // If the segment is not the last segment just acknowledge and wait. Otherwise return the response.
+  // Loop through each segment and send the request to OpenAI.
+  // If the segment is not the last segment, just receive and acknowledge. Otherwise, return the response.
   for (let i = 0; i < segments.length; i++) {
-    let obj = decode(segments[i])
-    let part = i + 1
-    let totalparts = segments.length
-    console.log('Segment Tokens:', encode(JSON.stringify(obj)).length)
-    console.log(`This is part ${part} of ${totalparts}`)
+    let obj = decode(segments[i]);
+    let part = i + 1;
+    let totalParts = segments.length;
+    console.log('Segment Tokens:', encode(JSON.stringify(obj)).length);
+    console.log(`This is part ${part} of ${totalParts}`);
 
-    if (part != totalparts) {
-      let prompt = `This is part ${part} of ${totalparts}. Just receive and acknowledge as Part ${part}/${totalparts} \n\n${obj}`;
+    if (part != totalParts) {
+      let prompt = `This is part ${part} of ${totalParts}. Just receive and acknowledge as Part ${part}/${totalParts} \n\n${obj}`;
       console.log(prompt);
 
       await openai.createCompletion({
@@ -54,7 +54,7 @@ async function generate_explanation(changes) {
         presence_penalty: 0,
       });
     } else {
-      let prompt = `This is part ${part} of ${totalparts}. Given the diff of all parts. Summarize the changes in 300 words or less\n\n${obj}`;
+      let prompt = `This is part ${part} of ${totalParts}. Given the diff of all parts. Summarize the changes in 300 words or less\n\n${obj}`;
       console.log(prompt);
       let response = await openai.createCompletion({
         model: "text-davinci-003",
@@ -74,64 +74,64 @@ async function generate_explanation(changes) {
 
 try {
   // Get the PR number, repository, and token from the GitHub webhook payload
-  const payload = JSON.stringify(github.context.payload, undefined, 2)
+  const payload = JSON.stringify(github.context.payload, undefined, 2);
   const jsonData = JSON.parse(payload);
-  const pull_request_number = jsonData.number;
+  const pullRequestNumber = jsonData.number;
   const repository = jsonData.pull_request.base.repo.full_name;
   const token = core.getInput('github-token');
 
   // Retrieve the base and head commit information for the pull request
-  const pull_request_url = `https://api.github.com/repos/${repository}/pulls/${pull_request_number}`;
+  const pullRequestUrl = `https://api.github.com/repos/${repository}/pulls/${pullRequestNumber}`;
   const headers = {
     Accept: 'application/vnd.github.v3+json',
     Authorization: `Bearer ${token}`,
   };
 
   axios
-    .get(pull_request_url, { headers: headers })
+    .get(pullRequestUrl, { headers: headers })
     .then((response) => {
-      // Set Base and Head CommitIDs
-      const pull_request_data = response.data;
-      const base_commit_sha = pull_request_data.base.sha;
-      const head_commit_sha = pull_request_data.head.sha;
+      // Set Base and Head Commit IDs
+      const pullRequestData = response.data;
+      const baseCommitSha = pullRequestData.base.sha;
+      const headCommitSha = pullRequestData.head.sha;
 
       // Retrieve the file changes between the base and head commits
-      const commit_url = `https://api.github.com/repos/${repository}/commits/`;
-      const base_commit_url = commit_url + base_commit_sha;
-      const head_commit_url = commit_url + head_commit_sha;
+      const commitUrl = `https://api.github.com/repos/${repository}/commits/`;
+      const baseCommitUrl = commitUrl + baseCommitSha;
+      const headCommitUrl = commitUrl + headCommitSha;
 
       return Promise.all([
-        axios.get(base_commit_url, { headers: headers }),
-        axios.get(head_commit_url, { headers: headers }),
+        axios.get(baseCommitUrl, { headers: headers }),
+        axios.get(headCommitUrl, { headers: headers }),
       ]);
     })
     .then(([baseCommitResponse, headCommitResponse]) => {
       // Compare the Commit IDs and get a back response in JSON.
-      const base_commit_data = baseCommitResponse.data;
-      const head_commit_data = headCommitResponse.data;
+      const baseCommitData = baseCommitResponse.data;
+      const headCommitData = headCommitResponse.data;
 
-      // Print the base_commit_data & head_commit_data
+      // Print the baseCommitData & headCommitData
       console.log('Base Sha');
       console.log(baseCommitResponse.data.sha);
       console.log('Head Sha');
       console.log(headCommitResponse.data.sha);
 
       // Retrieve the diff and changes between the base and head commits
-      const compare_url = `https://api.github.com/repos/${repository}/compare/${base_commit_data.sha}...${head_commit_data.sha}`;
-      return axios.get(compare_url, { headers: headers });
+      const compareUrl = `https://api.github.com/repos/${repository}/compare/${baseCommitData.sha}...${headCommitData.sha}`;
+      return axios.get(compareUrl, { headers: headers });
     })
     .then((compareResponse) => {
-      // Get the Data and output the File Changes.
-      const compare_data = compareResponse.data;
-      const changes = compare_data.files;
+      // Get the data and output the file changes.
+      const compareData = compareResponse.data;
+      const changes = compareData.files;
 
       // Calculate the token count of the prompt
       const tokens = encode(JSON.stringify(changes)).length;
-      const max_prompt_tokens = core.getInput('max-prompt-tokens'); // Maximum prompt tokens allowed
+      const maxPromptTokens = core.getInput('max-prompt-tokens'); // Maximum prompt tokens allowed
 
       // Print Prompt Token Count & Max Prompt Tokens
       console.log('Prompt Token Count:', tokens);
-      console.log('Max Prompt Tokens: ', max_prompt_tokens);
+      console.log('Max Prompt Tokens: ', maxPromptTokens);
 
       let ignorePathsInput = core.getInput('ignore-paths');
       let ignorePaths = [];
@@ -142,11 +142,18 @@ try {
       // Function to check if a file or path should be ignored
       function shouldIgnore(path) {
         return ignorePaths.some(ignorePath => {
-          if (ignorePath.endsWith('*')) {
-            const prefix = ignorePath.slice(0, -1);
+          const trimmedIgnorePath = ignorePath.trim();
+
+          if (trimmedIgnorePath.endsWith('/')) {
+            // Directory path
+            return path.startsWith(trimmedIgnorePath);
+          } else if (trimmedIgnorePath.endsWith('*')) {
+            // Wildcard file name
+            const prefix = trimmedIgnorePath.slice(0, -1);
             return path.startsWith(prefix);
           } else {
-            return path === ignorePath;
+            // Literal file name
+            return path === trimmedIgnorePath;
           }
         });
       }
@@ -154,12 +161,12 @@ try {
       // Filter out ignored files and paths
       const filteredChanges = changes.filter(change => !shouldIgnore(change.filename));
 
-      if (tokens > max_prompt_tokens || ignorePathsInput && filteredChanges.length === 0) {
+      if (tokens > maxPromptTokens || (ignorePathsInput && filteredChanges.length === 0)) {
         console.log('Skipping Comment due to Max Tokens or No Changes after Filtering');
         const explanation = 'skipping comment';
         return explanation;
       } else {
-        return generate_explanation(filteredChanges);
+        return generateExplanation(filteredChanges);
       }
     })
     .then((explanation) => {
@@ -170,7 +177,7 @@ try {
       const octokit = new Octokit({ auth: token });
       const comment = `Explanation of Changes (Generated via OpenAI):\n\n${JSON.stringify(explanation)}`;
 
-      async function create_comment() {
+      async function createComment() {
         const newComment = await octokit.issues.createComment({
           ...githubContext.repo,
           issue_number: githubContext.issue.number,
@@ -184,7 +191,7 @@ try {
       if (explanation == 'skipping comment') {
         console.log('Skipping Comment due to Max Tokens or No Changes after Filtering');
       } else {
-        create_comment();
+        createComment();
       }
     })
     .catch((error) => {
