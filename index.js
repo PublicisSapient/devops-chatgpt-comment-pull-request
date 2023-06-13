@@ -76,7 +76,7 @@ async function generate_explanation(changes) {
 // Function to Get Parent SHA from Branch
 async function get_parent_sha(url, headers) {
 
-  axios.get(url, {headers: headers })
+  await axios.get(url, {headers: headers })
   .then(response => {
     // console.log(response)
     const branch_response_data = response.data;
