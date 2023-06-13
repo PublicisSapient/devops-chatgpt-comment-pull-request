@@ -25023,6 +25023,7 @@ try {
         const pull_request_branch = pull_request_data.head.ref;
         const branch_request_url = `https://api.github.com/repos/${repository}/branches/${pull_request_branch}`;
         base_commit_sha = get_parent_sha(branch_request_url, headers);
+        console.log('Base Commit Sha:', base_commit_sha);
         head_commit_sha = pull_request_data.head.sha;
         // base_commit_sha = branch_response_data.commit.parents[0].sha;
       }
