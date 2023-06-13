@@ -118,6 +118,7 @@ try {
             const branch_response_data = response.data;
             console.log('Branch Response Data:', branch_response_data);
             base_commit_sha = branch_response_data.commit.parents[0].sha;
+            console.log('Base Commit Sha:', base_commit_sha)
         });
         head_commit_sha = pull_request_data.head.sha;
         // base_commit_sha = branch_response_data.commit.parents[0].sha;
