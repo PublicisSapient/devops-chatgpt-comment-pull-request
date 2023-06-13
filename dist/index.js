@@ -25036,7 +25036,7 @@ try {
       //   axios.get(head_commit_url, { headers: headers }),
       // ]);
     })
-    .then(([pullRequestData]) => {
+    .then((pullRequestData) => {
       const num_comments = pullRequestData.comments;
       const head_commit_sha = pullRequestData.head.sha;
       const pull_request_branch = pullRequestData.head.ref;
