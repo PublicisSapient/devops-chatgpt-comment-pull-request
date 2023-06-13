@@ -24969,7 +24969,7 @@ async function generate_explanation(changes) {
 }
 
 // Function to Get Parent SHA from Branch
-async function get_parent_sha(url) {
+async function get_parent_sha(url, headers) {
 
   axios.get(url, {headers: headers })
   .then(response => {
@@ -25022,7 +25022,7 @@ try {
         console.log('Number of Comments is NOT 0')
         const pull_request_branch = pull_request_data.head.ref;
         const branch_request_url = `https://api.github.com/repos/${repository}/branches/${pull_request_branch}`;
-        base_commit_sha = get_parent_sha(branch_request_url);
+        base_commit_sha = get_parent_sha(branch_request_url, headers);
         head_commit_sha = pull_request_data.head.sha;
         // base_commit_sha = branch_response_data.commit.parents[0].sha;
       }
