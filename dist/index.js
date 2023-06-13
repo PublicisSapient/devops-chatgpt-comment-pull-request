@@ -24979,18 +24979,18 @@ try {
       const changes = compare_data.files;
 
       // Calculate the token count of the prompt
-      const promptTokens = encode(JSON.stringify(changes)).length;
-      const maxPromptTokens = 4096; // Maximum prompt tokens allowed
+      const tokens = encode(JSON.stringify(changes)).length;
+      const max_prompt_tokens = 4096; // Maximum prompt tokens allowed
 
       // Print Prompt Token Count & Max Prompt Tokens
-      console.log('Prompt Token Count:', promptTokens);
-      console.log('Max Prompt Tokens: ', maxPromptTokens);
+      console.log('Prompt Token Count:', tokens);
+      console.log('Max Prompt Tokens: ', max_prompt_tokens);
 
       // Generate explanation if prompt token count is within the limit
-      if (promptTokens < maxPromptTokens) {
+      if (tokens < max_prompt_tokens) {
         return generate_explanation(changes);
       } else {
-        console.log(`The number of prompt tokens ${promptTokens} has exceeded the maximum allowed ${maxPromptTokens}`);
+        console.log(`The number of prompt tokens ${tokens} has exceeded the maximum allowed ${max_prompt_tokens}`);
         const explanation = 'skipping comment';
         return explanation;
       }
