@@ -24971,15 +24971,10 @@ async function generate_explanation(changes) {
 // Function to Get Parent SHA from Branch
 async function get_parent_sha(url, headers) {
 
-  await axios.get(url, {headers: headers })
-  .then(response => {
-    // console.log(response)
-    const branch_response_data = response.data;
-    console.log('Branch Response Data:', branch_response_data);
-    base_commit_sha = branch_response_data.commit.parents[0].sha;
-    console.log('Base Commit Sha:', base_commit_sha);
-    return base_commit_sha;
-})
+  let response = await axios.get(url, {headers: headers });
+
+  const base_commit_sha = response.data.commit.parents[0].sha;
+  return base_commit_sha;
 
 }
 
