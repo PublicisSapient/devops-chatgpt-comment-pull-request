@@ -25074,8 +25074,8 @@ try {
 
       // Retrieve the file changes between the base and head commits
       const commit_url = `https://api.github.com/repos/${repository}/commits/`;
-      const base_commit_url = commit_url + base_commit_sha;
-      const head_commit_url = commit_url + head_commit_sha;
+      const base_commit_url = commit_url + baseCommitSha;
+      const head_commit_url = commit_url + headCommitSha;
 
       return Promise.all([
         axios.get(base_commit_url, { headers: headers }),
