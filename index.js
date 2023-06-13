@@ -1,9 +1,8 @@
-// const openai = require('openai');
 const axios = require('axios');
 const core = require('@actions/core');
 const github = require('@actions/github');
 
-const { encode } = require('gpt-3-encoder')
+const { encode, decode } = require('gpt-3-encoder')
 
 const { Configuration, OpenAIApi } = require("openai");
 
@@ -18,24 +17,61 @@ const openai = new OpenAIApi(configuration);
 
 // Function to generate the explaination of the changes using open api.
 async function generate_explanation(changes) {
-  const diff = JSON.stringify(changes)
-  const prompt = `Given the below diff. Summarize the changes in 200 words or less:\n\n${diff}`;
+  const encodedDiff = encode(JSON.stringify(changes));
+  const totalTokens = encode(JSON.stringify(changes)).length;
+  
+  // Function to split the incoming changes into smaller chunks.
+  function splitStringIntoSegments(encodedDiff, totalTokens, segmentSize = 3096) {
+    const segments = [];
 
-  // console.log('The Prompt')
-  // console.log(JSON.stringify(prompt))
+    for ( let i=0; i < totalTokens; i += segmentSize) {
+      segments.push(encodedDiff.slice(i, i + segmentSize));
+    }
+    return segments;
+  }
 
-  const response = await openai.createCompletion({
-    model: "text-davinci-003",
-    prompt: prompt,
-    temperature: 1,
-    max_tokens: 256,
-    top_p: 1,
-    frequency_penalty: 0,
-    presence_penalty: 0,
-  });
+  const segments = splitStringIntoSegments(encodedDiff, totalTokens);
 
-  const explanation = response.data.choices[0].text.trim();
-  return explanation;
+  // Loop through each segment and send the request to openai.
+  // If the segment is not the last segment just acknowledge and wait. Otherwise return the response. 
+  for (let i = 0; i < segments.length; i++) {
+    let obj = decode(segments[i])
+    let part = i+1
+    let totalparts = segments.length
+    console.log('Segment Tokens:', encode(JSON.stringify(obj)).length)
+    console.log(`This is part ${part} of ${totalparts}`)
+
+    if (part != totalparts){
+      let prompt = `This is part ${part} of ${totalparts}. Just receive and acknowledge as Part ${part}/${totalparts} \n\n${obj}`;
+      console.log(prompt);
+
+      await openai.createCompletion({
+        model: "text-davinci-003",
+        prompt: prompt,
+        temperature: 1,
+        max_tokens: 256,
+        top_p: 1,
+        frequency_penalty: 0,
+        presence_penalty: 0,
+      });
+    } else {
+      let prompt = `This is part ${part} of ${totalparts}. Given the diff of all parts. Summarize the changes in 300 words or less\n\n${obj}`;
+      console.log(prompt);
+      let response = await openai.createCompletion({
+        model: "text-davinci-003",
+        prompt: prompt,
+        temperature: 1,
+        max_tokens: 256,
+        top_p: 1,
+        frequency_penalty: 0,
+        presence_penalty: 0,
+      });
+
+      const explanation = response.data.choices[0].text.trim();
+      return explanation;
+    }
+  }
+
 }
 
 try {
@@ -59,8 +95,8 @@ try {
   axios
     .get(pull_request_url, { headers: headers })
     .then((response) => {
+      // Set Base and Head CommitIDs
       const pull_request_data = response.data;
-      // console.log(response.data);
 
       const base_commit_sha = pull_request_data.base.sha;
       const head_commit_sha = pull_request_data.head.sha;
@@ -75,6 +111,7 @@ try {
       ]);
     })
     .then(([baseCommitResponse, headCommitResponse]) => {
+      // Compare the Commit IDs and get a back response in JSON.
       const base_commit_data = baseCommitResponse.data;
       const head_commit_data = headCommitResponse.data;
 
@@ -87,23 +124,27 @@ try {
       return axios.get(compare_url, { headers: headers });
     })
     .then((compareResponse) => {
+      // Get the Data and output the File Changes.
       const compare_data = compareResponse.data;
       const changes = compare_data.files;
 
+      // Get the Token Count and compare against the max promt token input.
+      // If Token Count is less then Max Prompt Token then send changes to OpenAI to generate a response.
       const tokens = encode(JSON.stringify(changes)).length;
       const max_prompt_tokens = core.getInput('max-prompt-tokens');
       console.log('Prompt Token Count:', tokens);
       console.log('Max Prompt Tokens: ', max_prompt_tokens);
 
-      if (tokens < max_prompt_tokens) {
-        return generate_explanation(changes);
-      } else {
+      if (tokens > max_prompt_tokens) {
         console.log(`The number of prompt tokens ${tokens} has exceeded the maximum allowed ${max_prompt_tokens}`)
         const explanation = 'skipping comment';
         return explanation 
+      } else {
+        return generate_explanation(changes);
       }
     })
     .then((explanation) => {
+      // Create the GitHub Comment
       console.log(explanation.split('-').join('\n'));
 
       const octokit = new Octokit({ auth: token });

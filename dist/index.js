@@ -24898,7 +24898,7 @@ const axios = __nccwpck_require__(515);
 const core = __nccwpck_require__(8864);
 const github = __nccwpck_require__(6366);
 
-const { encode } = __nccwpck_require__(9459)
+const { encode, decode } = __nccwpck_require__(9459)
 
 const { Configuration, OpenAIApi } = __nccwpck_require__(7142);
 
@@ -24913,24 +24913,59 @@ const openai = new OpenAIApi(configuration);
 
 // Function to generate the explaination of the changes using open api.
 async function generate_explanation(changes) {
-  const diff = JSON.stringify(changes)
-  const prompt = `Given the below diff. Summarize the changes in 200 words or less:\n\n${diff}`;
+  const encodedDiff = encode(JSON.stringify(changes));
+  const totalTokens = encode(JSON.stringify(changes)).length;
 
-  // console.log('The Prompt')
-  // console.log(JSON.stringify(prompt))
+  function splitStringIntoSegments(encodedDiff, totalTokens, segmentSize = 3096) {
+    const segments = [];
 
-  const response = await openai.createCompletion({
-    model: "text-davinci-003",
-    prompt: prompt,
-    temperature: 1,
-    max_tokens: 256,
-    top_p: 1,
-    frequency_penalty: 0,
-    presence_penalty: 0,
-  });
+    for ( let i=0; i < totalTokens; i += segmentSize) {
+      segments.push(encodedDiff.slice(i, i + segmentSize));
+    }
+    return segments;
+  }
 
-  const explanation = response.data.choices[0].text.trim();
-  return explanation;
+  const segments = splitStringIntoSegments(encodedDiff, totalTokens);
+
+  for (let i = 0; i < segments.length; i++) {
+    let obj = decode(segments[i])
+    let part = i+1
+    let totalparts = segments.length
+    console.log('Segment Tokens:', encode(JSON.stringify(obj)).length)
+    console.log(`This is part ${part} of ${totalparts}`)
+
+    if (part != totalparts){
+      let prompt = `This is part ${part} of ${totalparts}. Just receive and acknowledge as Part ${part}/${totalparts} \n\n${obj}`;
+      console.log(prompt);
+
+      await openai.createCompletion({
+        model: "text-davinci-003",
+        prompt: prompt,
+        temperature: 1,
+        max_tokens: 256,
+        top_p: 1,
+        frequency_penalty: 0,
+        presence_penalty: 0,
+      });
+    } else {
+      let prompt = `This is part ${part} of ${totalparts}. Given the diff of all parts. Summarize the changes in 300 words or less\n\n${obj}`;
+      console.log(prompt);
+      let response = await openai.createCompletion({
+        model: "text-davinci-003",
+        prompt: prompt,
+        temperature: 1,
+        max_tokens: 256,
+        top_p: 1,
+        frequency_penalty: 0,
+        presence_penalty: 0,
+      });
+
+      const explanation = response.data.choices[0].text.trim();
+      // console.log(explanation);
+      return explanation;
+    }
+  }
+
 }
 
 try {
@@ -24990,12 +25025,14 @@ try {
       console.log('Prompt Token Count:', tokens);
       console.log('Max Prompt Tokens: ', max_prompt_tokens);
 
-      if (tokens < max_prompt_tokens) {
-        return generate_explanation(changes);
-      } else {
+      // return generate_explanation(changes)
+
+      if (tokens > max_prompt_tokens) {
         console.log(`The number of prompt tokens ${tokens} has exceeded the maximum allowed ${max_prompt_tokens}`)
         const explanation = 'skipping comment';
         return explanation 
+      } else {
+        return generate_explanation(changes);
       }
     })
     .then((explanation) => {
