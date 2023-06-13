@@ -3,7 +3,6 @@ const axios = require('axios');
 const core = require('@actions/core');
 const github = require('@actions/github');
 const { encode, decode } = require('gpt-3-encoder')
-
 const { Configuration, OpenAIApi } = require("openai");
 const { Octokit } = require('@octokit/rest');
 const { context: githubContext } = require('@actions/github');
@@ -40,7 +39,7 @@ async function generate_explanation(changes) {
     console.log('Segment Tokens:', encode(JSON.stringify(obj)).length);
     console.log(`This is part ${part} of ${totalparts}`);
 
-    if (part !== totalparts) {
+    if (part != totalparts) {
       let prompt = `This is part ${part} of ${totalparts}. Just receive and acknowledge as Part ${part}/${totalparts} \n\n${obj}`;
       console.log(prompt);
 
@@ -74,7 +73,7 @@ async function generate_explanation(changes) {
 
 try {
   // Get the PR number, repository, and token from the GitHub webhook payload
-  const payload = JSON.stringify(github.context.payload, undefined, 2);
+  const payload = JSON.stringify(github.context.payload, undefined, 2)
   const jsonData = JSON.parse(payload);
   const pull_request_number = jsonData.number;
   const repository = jsonData.pull_request.base.repo.full_name;
@@ -123,25 +122,7 @@ try {
     .then((compareResponse) => {
       // Get the Data and output the File Changes.
       const compare_data = compareResponse.data;
-      let changes = compare_data.files;
-
-      // Retrieve the ignore paths/files from user input
-      const ignorePaths = core.getInput('ignore-paths');
-      const ignoreFiles = ignorePaths.split(',').map((path) => path.trim());
-
-      // Filter out the ignored paths/files from the changes array
-      changes = changes.filter((change) => {
-        const filePath = change.filename;
-        if (ignoreFiles.includes(filePath)) {
-          return false; // Ignore specific files
-        }
-        for (const ignorePath of ignorePaths) {
-          if (filePath.startsWith(ignorePath)) {
-            return false; // Ignore complete paths
-          }
-        }
-        return true; // Include all other files
-      });
+      const changes = compare_data.files;
 
       // Calculate the token count of the prompt
       const tokens = encode(JSON.stringify(changes)).length;
@@ -151,12 +132,24 @@ try {
       console.log('Prompt Token Count:', tokens);
       console.log('Max Prompt Tokens: ', max_prompt_tokens);
 
+      const ignorePathsInput = core.getInput('ignore-paths');
+      let ignorePaths = [];
+
+      if (ignorePathsInput) {
+        ignorePaths = ignorePathsInput.split(',');
+      }
+
+      // Filter out ignored paths and files
+      const filteredChanges = ignorePaths.length > 0
+        ? changes.filter((change) => !ignorePaths.some((path) => change.filename.startsWith(path.trim())))
+        : changes;
+
       if (tokens > max_prompt_tokens) {
-        console.log(`The number of prompt tokens ${tokens} has exceeded the maximum allowed ${max_prompt_tokens}`);
+        console.log(`The number of prompt tokens ${tokens} has exceeded the maximum allowed ${max_prompt_tokens}`)
         const explanation = 'skipping comment';
         return explanation;
       } else {
-        return generate_explanation(changes);
+        return generate_explanation(filteredChanges);
       }
     })
     .then((explanation) => {
@@ -187,6 +180,7 @@ try {
     .catch((error) => {
       console.error(error);
     });
+
 } catch (error) {
   core.setFailed(error.message);
 }
