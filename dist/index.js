@@ -24986,82 +24986,86 @@ try {
   axios
     .get(pull_request_url, { headers: headers })
     .then((response) => {
+
       // Set Base and Head CommitIDs
       const pull_request_data = response.data;
+      // Get Number of Comments
+      const num_comments = pull_request_data.comments;
+      console.log(num_comments);
       const base_commit_sha = pull_request_data.base.sha;
       const head_commit_sha = pull_request_data.head.sha;
 
       // Retrieve the file changes between the base and head commits
-      const commit_url = `https://api.github.com/repos/${repository}/commits/`;
-      const base_commit_url = commit_url + base_commit_sha;
-      const head_commit_url = commit_url + head_commit_sha;
+      // const commit_url = `https://api.github.com/repos/${repository}/commits/`;
+      // const base_commit_url = commit_url + base_commit_sha;
+      // const head_commit_url = commit_url + head_commit_sha;
 
-      return Promise.all([
-        axios.get(base_commit_url, { headers: headers }),
-        axios.get(head_commit_url, { headers: headers }),
-      ]);
+      // return Promise.all([
+      //   axios.get(base_commit_url, { headers: headers }),
+      //   axios.get(head_commit_url, { headers: headers }),
+      // ]);
     })
-    .then(([baseCommitResponse, headCommitResponse]) => {
-      // Compare the Commit IDs and get a back response in JSON.
-      const base_commit_data = baseCommitResponse.data;
-      const head_commit_data = headCommitResponse.data;
+    // .then(([baseCommitResponse, headCommitResponse]) => {
+    //   // Compare the Commit IDs and get a back response in JSON.
+    //   const base_commit_data = baseCommitResponse.data;
+    //   const head_commit_data = headCommitResponse.data;
 
-      // Print the base_commit_data & head_commit_data
-      console.log('Base Sha');
-      console.log(baseCommitResponse.data.sha);
-      console.log('Head Sha');
-      console.log(headCommitResponse.data.sha);
+    //   // Print the base_commit_data & head_commit_data
+    //   console.log('Base Sha');
+    //   console.log(baseCommitResponse.data.sha);
+    //   console.log('Head Sha');
+    //   console.log(headCommitResponse.data.sha);
 
-      // Retrieve the diff and changes between the base and head commits
-      const compare_url = `https://api.github.com/repos/${repository}/compare/${base_commit_data.sha}...${head_commit_data.sha}`;
-      return axios.get(compare_url, { headers: headers });
-    })
-    .then((compareResponse) => {
-      // Get the Data and output the File Changes.
-      const compare_data = compareResponse.data;
-      const changes = compare_data.files;
+    //   // Retrieve the diff and changes between the base and head commits
+    //   const compare_url = `https://api.github.com/repos/${repository}/compare/${base_commit_data.sha}...${head_commit_data.sha}`;
+    //   return axios.get(compare_url, { headers: headers });
+    // })
+    // .then((compareResponse) => {
+    //   // Get the Data and output the File Changes.
+    //   const compare_data = compareResponse.data;
+    //   const changes = compare_data.files;
 
-      // Calculate the token count of the prompt
-      const tokens = encode(JSON.stringify(changes)).length;
-      const max_prompt_tokens = core.getInput('max-prompt-tokens'); // Maximum prompt tokens allowed
+    //   // Calculate the token count of the prompt
+    //   const tokens = encode(JSON.stringify(changes)).length;
+    //   const max_prompt_tokens = core.getInput('max-prompt-tokens'); // Maximum prompt tokens allowed
 
-      // Print Prompt Token Count & Max Prompt Tokens
-      console.log('Prompt Token Count:', tokens);
-      console.log('Max Prompt Tokens: ', max_prompt_tokens);
+    //   // Print Prompt Token Count & Max Prompt Tokens
+    //   console.log('Prompt Token Count:', tokens);
+    //   console.log('Max Prompt Tokens: ', max_prompt_tokens);
 
-      if (tokens > max_prompt_tokens) {
-        console.log(`The number of prompt tokens ${tokens} has exceeded the maximum allowed ${max_prompt_tokens}`)
-        const explanation = 'skipping comment';
-        return explanation 
-      } else {
-        return generate_explanation(changes);
-      }
-    })
-    .then((explanation) => {
-      // Create the GitHub Comment
-      console.log(explanation.split('-').join('\n'));
+    //   if (tokens > max_prompt_tokens) {
+    //     console.log(`The number of prompt tokens ${tokens} has exceeded the maximum allowed ${max_prompt_tokens}`)
+    //     const explanation = 'skipping comment';
+    //     return explanation 
+    //   } else {
+    //     return generate_explanation(changes);
+    //   }
+    // })
+    // .then((explanation) => {
+    //   // Create the GitHub Comment
+    //   console.log(explanation.split('-').join('\n'));
 
-      // Create a comment with the generated explanation
-      const octokit = new Octokit({ auth: token });
-      const comment = `Explanation of Changes (Generated via OpenAI):\n\n${JSON.stringify(explanation)}`;
+    //   // Create a comment with the generated explanation
+    //   const octokit = new Octokit({ auth: token });
+    //   const comment = `Explanation of Changes (Generated via OpenAI):\n\n${JSON.stringify(explanation)}`;
 
-      async function create_comment() {
-        const newComment = await octokit.issues.createComment({
-          ...githubContext.repo,
-          issue_number: githubContext.issue.number,
-          body: comment
-        });
+    //   async function create_comment() {
+    //     const newComment = await octokit.issues.createComment({
+    //       ...githubContext.repo,
+    //       issue_number: githubContext.issue.number,
+    //       body: comment
+    //     });
 
-        console.log(`Comment added: ${newComment.data.html_url}`);
-      }
+    //     console.log(`Comment added: ${newComment.data.html_url}`);
+    //   }
 
-      //  Create Comment if Explanation does not contain 'skipping comment' due to max tokens limit
-      if (explanation == 'skipping comment') {
-        console.log('Skipping Comment due to Max Tokens');
-      } else {
-        create_comment();
-      }
-    })
+    //   //  Create Comment if Explanation does not contain 'skipping comment' due to max tokens limit
+    //   if (explanation == 'skipping comment') {
+    //     console.log('Skipping Comment due to Max Tokens');
+    //   } else {
+    //     create_comment();
+    //   }
+    // })
     .catch((error) => {
       console.error(error);
     });
