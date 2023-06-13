@@ -25010,7 +25010,7 @@ try {
         const branch_response = axios.get(branch_request_url, {headers: headers });
         const branch_response_data = branch_response.data;
         head_commit_sha = pull_request_data.head.sha;
-        base_commit_sha = branch_response_data.commit.parents[0].sha;
+        // base_commit_sha = branch_response_data.commit.parents[0].sha;
       }
 
       console.log('Head Commit:', head_commit_sha);
