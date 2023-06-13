@@ -11,6 +11,9 @@ inputs:
     description: 'The maximum number of tokens to use for the prompt'
     required: false
     default: '2048'
+  ignore-paths:
+    description: 'comma separated list of paths and files'
+    required: false
 outputs:
   time: # id of output
     description: 'The time we greeted you'
