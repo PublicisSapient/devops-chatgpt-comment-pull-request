@@ -24893,32 +24893,27 @@ module.exports = JSON.parse('[[[0,44],"disallowed_STD3_valid"],[[45,46],"valid"]
 var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
-// const openai = require('openai');
+// Import required packages and libraries
 const axios = __nccwpck_require__(9109);
 const core = __nccwpck_require__(6024);
 const github = __nccwpck_require__(5016);
-
 const { encode } = __nccwpck_require__(4710)
-
 const { Configuration, OpenAIApi } = __nccwpck_require__(1797);
-
 const { Octokit } = __nccwpck_require__(7276);
 const { context: githubContext } = __nccwpck_require__(5016);
 
+// Create an OpenAI instance using the provided API key
 const configuration = new Configuration({
   apiKey: core.getInput('open-api-key')
 });
 const openai = new OpenAIApi(configuration);
 
-
-// Function to generate the explanation of the changes using open api.
+// Function to generate the explanation of the changes using OpenAI API
 async function generate_explanation(changes) {
-  const diff = JSON.stringify(changes)
+  const diff = JSON.stringify(changes);
   const prompt = `Given the below diff. Summarize the changes in 200 words or less:\n\n${diff}`;
 
-  // console.log('The Prompt')
-  // console.log(JSON.stringify(prompt))
-
+  // Generate completion using OpenAI API
   const response = await openai.createCompletion({
     model: "text-davinci-003",
     prompt: prompt,
@@ -24934,17 +24929,14 @@ async function generate_explanation(changes) {
 }
 
 try {
-  // Get the JSON webhook payload for the event that triggered the workflow
+  // Get the PR number, repository, and token from the GitHub webhook payload
   const payload = JSON.stringify(github.context.payload, undefined, 2)
   const jsonData = JSON.parse(payload);
-
   const pull_request_number = jsonData.number;
   const repository = jsonData.pull_request.base.repo.full_name;
   const token = core.getInput('github-token');
 
-  console.log(`The PR Number: ${pull_request_number}`);
-  console.log(`Repository: ${repository}`);
-
+  // Retrieve the base and head commit information for the pull request
   const pull_request_url = `https://api.github.com/repos/${repository}/pulls/${pull_request_number}`;
   const headers = {
     Accept: 'application/vnd.github.v3+json',
@@ -24955,11 +24947,10 @@ try {
     .get(pull_request_url, { headers: headers })
     .then((response) => {
       const pull_request_data = response.data;
-      // console.log(response.data);
-
       const base_commit_sha = pull_request_data.base.sha;
       const head_commit_sha = pull_request_data.head.sha;
 
+      // Retrieve the file changes between the base and head commits
       const commit_url = `https://api.github.com/repos/${repository}/commits/`;
       const base_commit_url = commit_url + base_commit_sha;
       const head_commit_url = commit_url + head_commit_sha;
@@ -24973,11 +24964,7 @@ try {
       const base_commit_data = baseCommitResponse.data;
       const head_commit_data = headCommitResponse.data;
 
-      console.log('Base Sha');
-      console.log(baseCommitResponse.data.sha);
-      console.log('Head Sha');
-      console.log(headCommitResponse.data.sha);
-
+      // Retrieve the diff and changes between the base and head commits
       const compare_url = `https://api.github.com/repos/${repository}/compare/${base_commit_data.sha}...${head_commit_data.sha}`;
       return axios.get(compare_url, { headers: headers });
     })
@@ -24985,12 +24972,15 @@ try {
       const compare_data = compareResponse.data;
       const changes = compare_data.files;
 
+      // Calculate the token count of the prompt
       const promptTokens = encode(JSON.stringify(changes)).length;
       const maxPromptTokens = 4096; // Maximum prompt tokens allowed
       const maxResponseTokens = 4096; // Maximum response tokens allowed
+
       console.log('Prompt Token Count:', promptTokens);
       console.log('Max Prompt Tokens: ', maxPromptTokens);
 
+      // Generate explanation if prompt token count is within the limit
       if (promptTokens < maxPromptTokens) {
         return generate_explanation(changes);
       } else {
@@ -25002,8 +24992,10 @@ try {
     .then((explanation) => {
       console.log(explanation.split('-').join('\n'));
 
+      // Create a comment with the generated explanation
       const octokit = new Octokit({ auth: token });
       const comment = `Explanation of Changes (Generated via OpenAI):\n\n${JSON.stringify(explanation)}`;
+
       async function create_comment() {
         const newComment = await octokit.issues.createComment({
           ...githubContext.repo,
@@ -25014,6 +25006,7 @@ try {
         console.log(`Comment added: ${newComment.data.html_url}`);
       }
 
+      // Check response token count and create comment if within limit
       if (explanation == 'skipping comment') {
         console.log('Skipping Comment due to Max Tokens');
       } else {
@@ -25036,6 +25029,7 @@ try {
 } catch (error) {
   core.setFailed(error.message);
 }
+
 })();
 
 module.exports = __webpack_exports__;
