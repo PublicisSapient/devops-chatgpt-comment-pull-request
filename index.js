@@ -18,12 +18,12 @@ const openai = new OpenAIApi(configuration);
 async function generate_explanation(changes) {
   const encodedDiff = encode(JSON.stringify(changes));
   const totalTokens = encode(JSON.stringify(changes)).length;
-  
+
   // Function to split the incoming changes into smaller chunks.
   function splitStringIntoSegments(encodedDiff, totalTokens, segmentSize = 3096) {
     const segments = [];
 
-    for ( let i=0; i < totalTokens; i += segmentSize) {
+    for (let i = 0; i < totalTokens; i += segmentSize) {
       segments.push(encodedDiff.slice(i, i + segmentSize));
     }
     return segments;
@@ -31,16 +31,16 @@ async function generate_explanation(changes) {
 
   const segments = splitStringIntoSegments(encodedDiff, totalTokens);
 
-  // Loop through each segment and send the request to openai.
-  // If the segment is not the last segment just acknowledge and wait. Otherwise return the response. 
+  // Loop through each segment and send the request to OpenAI.
+  // If the segment is not the last segment, just acknowledge and wait. Otherwise, return the response.
   for (let i = 0; i < segments.length; i++) {
-    let obj = decode(segments[i])
-    let part = i+1
-    let totalparts = segments.length
-    console.log('Segment Tokens:', encode(JSON.stringify(obj)).length)
-    console.log(`This is part ${part} of ${totalparts}`)
+    let obj = decode(segments[i]);
+    let part = i + 1;
+    let totalparts = segments.length;
+    console.log('Segment Tokens:', encode(JSON.stringify(obj)).length);
+    console.log(`This is part ${part} of ${totalparts}`);
 
-    if (part != totalparts){
+    if (part !== totalparts) {
       let prompt = `This is part ${part} of ${totalparts}. Just receive and acknowledge as Part ${part}/${totalparts} \n\n${obj}`;
       console.log(prompt);
 
@@ -70,12 +70,11 @@ async function generate_explanation(changes) {
       return explanation;
     }
   }
-
 }
 
 try {
   // Get the PR number, repository, and token from the GitHub webhook payload
-  const payload = JSON.stringify(github.context.payload, undefined, 2)
+  const payload = JSON.stringify(github.context.payload, undefined, 2);
   const jsonData = JSON.parse(payload);
   const pull_request_number = jsonData.number;
   const repository = jsonData.pull_request.base.repo.full_name;
@@ -124,7 +123,25 @@ try {
     .then((compareResponse) => {
       // Get the Data and output the File Changes.
       const compare_data = compareResponse.data;
-      const changes = compare_data.files;
+      let changes = compare_data.files;
+
+      // Retrieve the ignore paths/files from user input
+      const ignorePaths = core.getInput('ignore-paths');
+      const ignoreFiles = ignorePaths.split(',').map((path) => path.trim());
+
+      // Filter out the ignored paths/files from the changes array
+      changes = changes.filter((change) => {
+        const filePath = change.filename;
+        if (ignoreFiles.includes(filePath)) {
+          return false; // Ignore specific files
+        }
+        for (const ignorePath of ignorePaths) {
+          if (filePath.startsWith(ignorePath)) {
+            return false; // Ignore complete paths
+          }
+        }
+        return true; // Include all other files
+      });
 
       // Calculate the token count of the prompt
       const tokens = encode(JSON.stringify(changes)).length;
@@ -135,9 +152,9 @@ try {
       console.log('Max Prompt Tokens: ', max_prompt_tokens);
 
       if (tokens > max_prompt_tokens) {
-        console.log(`The number of prompt tokens ${tokens} has exceeded the maximum allowed ${max_prompt_tokens}`)
+        console.log(`The number of prompt tokens ${tokens} has exceeded the maximum allowed ${max_prompt_tokens}`);
         const explanation = 'skipping comment';
-        return explanation 
+        return explanation;
       } else {
         return generate_explanation(changes);
       }
@@ -160,8 +177,8 @@ try {
         console.log(`Comment added: ${newComment.data.html_url}`);
       }
 
-      //  Create Comment if Explanation does not contain 'skipping comment' due to max tokens limit
-      if (explanation == 'skipping comment') {
+      // Create Comment if Explanation does not contain 'skipping comment' due to max tokens limit
+      if (explanation === 'skipping comment') {
         console.log('Skipping Comment due to Max Tokens');
       } else {
         create_comment();
@@ -170,7 +187,6 @@ try {
     .catch((error) => {
       console.error(error);
     });
-
 } catch (error) {
   core.setFailed(error.message);
 }
