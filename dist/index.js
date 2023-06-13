@@ -25023,7 +25023,7 @@ try {
 
       // Calculate the token count of the prompt
       const tokens = encode(JSON.stringify(changes)).length;
-      const max_prompt_tokens = 4096; // Maximum prompt tokens allowed
+      const max_prompt_tokens = core.getInput('max-prompt-tokens'); // Maximum prompt tokens allowed
 
       // Print Prompt Token Count & Max Prompt Tokens
       console.log('Prompt Token Count:', tokens);
