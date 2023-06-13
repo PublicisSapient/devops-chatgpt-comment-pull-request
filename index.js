@@ -42,6 +42,7 @@ async function generate_explanation(changes) {
     console.log(`This is part ${part} of ${totalparts}`)
 
     if (part != totalparts){
+      console.log('made it to 45');
       let prompt = `This is part ${part} of ${totalparts}. Just receive and acknowledge as Part ${part}/${totalparts} \n\n${obj}`;
       let model = core.getInput('model');
       let temperature = core.getInput('temperature');
