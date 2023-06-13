@@ -24999,8 +24999,8 @@ try {
 
       if (num_comments == 0) {
         console.log('Number of Comments is 0')
-        let base_commit_sha = pull_request_data.base.sha;
-        let head_commit_sha = pull_request_data.head.sha;
+        base_commit_sha = pull_request_data.base.sha;
+        head_commit_sha = pull_request_data.head.sha;
         console.log('Head Commit:', head_commit_sha);
         console.log('Base Commit:', base_commit_sha);
       } else {
@@ -25009,8 +25009,8 @@ try {
         const branch_request_url = `https://api.github.com/repos/${repository}/branches/${pull_request_branch}`;
         const branch_response = axios.get(branch_request_url, {headers: headers });
         const branch_response_data = branch_response.data;
-        let head_commit_sha = pull_request_data.head.sha;
-        let base_commit_sha = branch_response_data.commit.parents[0].sha;
+        head_commit_sha = pull_request_data.head.sha;
+        base_commit_sha = branch_response_data.commit.parents[0].sha;
       }
 
       console.log('Head Commit:', head_commit_sha);
