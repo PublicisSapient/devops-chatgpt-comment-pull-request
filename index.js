@@ -18,7 +18,6 @@ const openai = new OpenAIApi(configuration);
 
 // Function to generate the explaination of the changes using open api.
 async function generate_explanation(changes) {
-  const diff = JSON.stringify(changes)
   const encodedDiff = encode(JSON.stringify(changes));
   const totalTokens = encode(JSON.stringify(changes)).length;
 
@@ -67,11 +66,11 @@ async function generate_explanation(changes) {
       });
 
       const explanation = response.data.choices[0].text.trim();
-      console.log(explanation);
+      // console.log(explanation);
+      return explanation;
     }
   }
 
-  // return explanation;
 }
 
 try {
@@ -131,27 +130,18 @@ try {
       console.log('Prompt Token Count:', tokens);
       console.log('Max Prompt Tokens: ', max_prompt_tokens);
 
-      return generate_explanation(changes)
+      // return generate_explanation(changes)
 
-      // if (tokens > max_prompt_tokens) {
-      //   console.log(`The number of prompt tokens ${tokens} has exceeded the maximum allowed ${max_prompt_tokens}`)
-      //   const explanation = 'skipping comment';
-      //   return explanation 
-      // } else if (tokens + 256 > 4096) {
-      //   console.log('Splitting Requests');
-      //   for (let i = 0; i < changes.length; i++) {
-      //     let obj = changes[i]
-      //     console.log('File Tokens:', encode(JSON.stringify(obj)).length)
-      //     console.log(obj);
-      //   }
-      //   // console.log(changes);
-
-      // } else {
-      //   // return generate_explanation(changes);
-      // }
+      if (tokens > max_prompt_tokens) {
+        console.log(`The number of prompt tokens ${tokens} has exceeded the maximum allowed ${max_prompt_tokens}`)
+        const explanation = 'skipping comment';
+        return explanation 
+      } else {
+        return generate_explanation(changes);
+      }
     })
-    // .then((explanation) => {
-    //   console.log(explanation.split('-').join('\n'));
+    .then((explanation) => {
+      console.log(explanation.split('-').join('\n'));
 
       // const octokit = new Octokit({ auth: token });
       // const comment = `Explanation of Changes (Generated via OpenAI):\n\n${JSON.stringify(explanation)}`;
@@ -170,7 +160,7 @@ try {
       // } else {
       //   create_comment();
       // }
-    // })
+    })
     .catch((error) => {
       console.error(error);
     });
