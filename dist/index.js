@@ -25055,21 +25055,11 @@ try {
         console.log(`Comment added: ${newComment.data.html_url}`);
       }
 
-      // Check response token count and create comment if within limit
+      //  Create Comment if Explanation does not contain 'skipping comment' due to max tokens limit
       if (explanation == 'skipping comment') {
         console.log('Skipping Comment due to Max Tokens');
       } else {
-        const maxResponseTokens = core.getInput('max-prompt-tokens'); // Maximum response tokens allowed
-        const responseTokens = encode(explanation).length;
-        console.log('Response Token Count:', responseTokens);
-        console.log('Max Response Tokens:', maxResponseTokens);
-
-        if (responseTokens <= maxResponseTokens) {
-          create_comment();
-        } else {
-          console.log(`The number of response tokens ${responseTokens} has exceeded the maximum allowed ${maxResponseTokens}`);
-          console.log('Skipping Comment due to Max Tokens');
-        }
+        create_comment();
       }
     })
     .catch((error) => {
