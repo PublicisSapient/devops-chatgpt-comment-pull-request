@@ -24898,6 +24898,7 @@ const axios = __nccwpck_require__(9109);
 const core = __nccwpck_require__(6024);
 const github = __nccwpck_require__(5016);
 const { encode, decode } = __nccwpck_require__(4710)
+
 const { Configuration, OpenAIApi } = __nccwpck_require__(1797);
 const { Octokit } = __nccwpck_require__(7276);
 const { context: githubContext } = __nccwpck_require__(5016);
@@ -24925,14 +24926,14 @@ async function generate_explanation(changes) {
 
   const segments = splitStringIntoSegments(encodedDiff, totalTokens);
 
-  // Loop through each segment and send the request to OpenAI.
-  // If the segment is not the last segment, just acknowledge and wait. Otherwise, return the response.
+  // Loop through each segment and send the request to openai.
+  // If the segment is not the last segment just acknowledge and wait. Otherwise return the response.
   for (let i = 0; i < segments.length; i++) {
-    let obj = decode(segments[i]);
-    let part = i + 1;
-    let totalparts = segments.length;
-    console.log('Segment Tokens:', encode(JSON.stringify(obj)).length);
-    console.log(`This is part ${part} of ${totalparts}`);
+    let obj = decode(segments[i])
+    let part = i + 1
+    let totalparts = segments.length
+    console.log('Segment Tokens:', encode(JSON.stringify(obj)).length)
+    console.log(`This is part ${part} of ${totalparts}`)
 
     if (part != totalparts) {
       let prompt = `This is part ${part} of ${totalparts}. Just receive and acknowledge as Part ${part}/${totalparts} \n\n${obj}`;
@@ -25027,20 +25028,29 @@ try {
       console.log('Prompt Token Count:', tokens);
       console.log('Max Prompt Tokens: ', max_prompt_tokens);
 
-      const ignorePathsInput = core.getInput('ignore-paths');
+      let ignorePathsInput = core.getInput('ignore-paths');
       let ignorePaths = [];
-
       if (ignorePathsInput) {
         ignorePaths = ignorePathsInput.split(',');
       }
 
-      // Filter out ignored paths and files
-      const filteredChanges = ignorePaths.length > 0
-        ? changes.filter((change) => !ignorePaths.some((path) => change.filename.startsWith(path.trim())))
-        : changes;
+      // Function to check if a file or path should be ignored
+      function shouldIgnore(path) {
+        return ignorePaths.some(ignorePath => {
+          if (ignorePath.endsWith('*')) {
+            const prefix = ignorePath.slice(0, -1);
+            return path.startsWith(prefix);
+          } else {
+            return path === ignorePath;
+          }
+        });
+      }
 
-      if (tokens > max_prompt_tokens) {
-        console.log(`The number of prompt tokens ${tokens} has exceeded the maximum allowed ${max_prompt_tokens}`)
+      // Filter out ignored files and paths
+      const filteredChanges = changes.filter(change => !shouldIgnore(change.filename));
+
+      if (tokens > max_prompt_tokens || ignorePathsInput && filteredChanges.length === 0) {
+        console.log('Skipping Comment due to Max Tokens or No Changes after Filtering');
         const explanation = 'skipping comment';
         return explanation;
       } else {
@@ -25066,8 +25076,8 @@ try {
       }
 
       // Create Comment if Explanation does not contain 'skipping comment' due to max tokens limit
-      if (explanation === 'skipping comment') {
-        console.log('Skipping Comment due to Max Tokens');
+      if (explanation == 'skipping comment') {
+        console.log('Skipping Comment due to Max Tokens or No Changes after Filtering');
       } else {
         create_comment();
       }
@@ -25079,6 +25089,7 @@ try {
 } catch (error) {
   core.setFailed(error.message);
 }
+
 })();
 
 module.exports = __webpack_exports__;
