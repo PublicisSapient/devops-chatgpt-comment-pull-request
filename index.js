@@ -49,6 +49,12 @@ async function generate_explanation(changes) {
       let top_p = core.getInput('top_p');
       let frequency_penalty = core.getInput('frequency-penalty');
       let presence_penalty = core.getInput('presence-penalty');
+      console.log('model = '+ model);
+      console.log('temperature = '+ temperature);
+      console.log('max_tokens = '+max_tokens);
+      console.log('top_p = '+ top_p);
+      console.log('frequency_penalty = '+ frequency_penalty);
+      console.log('presence_penalty = '+ presence_penalty);
       console.log(prompt);
 
       await openai.createCompletion({
