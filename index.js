@@ -39,7 +39,7 @@ async function generate_explanation(changes) {
     let totalparts = segments.length
     console.log('Segment Tokens:', encode(JSON.stringify(obj)).length)
     console.log(`This is part ${part} of ${totalparts}`)
-  }
+
     if (part != totalparts){
       let prompt = `This is part ${part} of ${totalparts}. Just receive and acknowledge as Part ${part}/${totalparts} \n\n${diff}`;
       console.log(prompt);
@@ -65,6 +65,7 @@ async function generate_explanation(changes) {
     //     frequency_penalty: 0,
     //     presence_penalty: 0,
     // }
+    }
   }
 
   // const explanation = response.data.choices[0].text.trim();
