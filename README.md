@@ -35,7 +35,7 @@ This action will retrieve the pull request information and generate an explanati
 
 ## Configuration
 
-The script provides several configuration options that you can modify based on your requirements:
+Action provides several configuration options that you can modify based on your requirements:
 
 - `apiKey`: Your OpenAI API key.
 - `github-token`: Your GitHub personal access token.
