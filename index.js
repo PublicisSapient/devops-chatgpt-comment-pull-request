@@ -39,7 +39,7 @@ async function generateExplanation(changes) {
     let totalParts = segments.length;
     console.log('Segment Tokens:', encode(JSON.stringify(obj)).length);
     console.log(`This is part ${part} of ${totalParts}`);
-    
+
     let model = core.getInput('model');
     let temperature = core.getInput('temperature');
     let max_tokens = core.getInput('max-tokens');
@@ -49,7 +49,6 @@ async function generateExplanation(changes) {
 
     if (part != totalParts) {
       let prompt = `This is part ${part} of ${totalParts}. Just receive and acknowledge as Part ${part}/${totalParts} \n\n${obj}`;
-      let custom_prompt 
       console.log(prompt);
       console.log('model = '+ model);
       console.log('temperature = '+ temperature);
