@@ -24941,19 +24941,12 @@ async function generateExplanation(changes) {
     let topP = parseInt(core.getInput('top_p'));
     let frequencyPenalty = parseInt(core.getInput('frequency-penalty'));
     let presencePenalty = parseInt(core.getInput('presence-penalty'));
-    console.log('model = '+ model);
-    console.log('temperature = '+ temperature);
-    console.log('max_tokens = '+maxResponseTokens);
-    console.log('top_p = '+ topP);
-    console.log('frequency_penalty = '+ frequencyPenalty);
-    console.log('presence_penalty = '+ presencePenalty);
-
 
     if (part != totalParts) {
       let prompt = `This is part ${part} of ${totalParts}. Just receive and acknowledge as Part ${part}/${totalParts} \n\n${obj}`;
       console.log(prompt);
       await openai.createCompletion({
-        model: "text-davinci-003",
+        model: model,
         prompt: prompt,
         temperature: temperature,
         max_tokens: maxResponseTokens,
@@ -24962,25 +24955,12 @@ async function generateExplanation(changes) {
         presence_penalty: presencePenalty,
       });
     } else {
-      console.log('model = '+ model);
-      console.log(typeof(model));
-      console.log('temperature = '+ temperature);
-      console.log(typeof(temperature));
-      console.log('max_tokens = '+maxResponseTokens);
-      console.log(typeof(maxResponseTokens));
-      console.log('top_p = '+ topP);
-      console.log(typeof(topP));
-      console.log('frequency_penalty = '+ frequencyPenalty);
-      console.log(typeof(frequencyPenalty));
-      console.log('presence_penalty = '+ presencePenalty);
-      console.log(typeof(presencePenalty));
-
 
       let customPrompt = core.getInput('custom-prompt');
       let prompt = `This is part ${part} of ${totalParts}. ${customPrompt}\n\n${obj}`;
       console.log(prompt);
       let response = await openai.createCompletion({
-        model: "text-davinci-003",
+        model: model,
         prompt: prompt,
         temperature: temperature,
         max_tokens: maxResponseTokens,
