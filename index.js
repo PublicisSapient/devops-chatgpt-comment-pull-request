@@ -56,9 +56,10 @@ async function generateExplanation(changes) {
     if (part != totalParts) {
       let prompt = `This is part ${part} of ${totalParts}. Just receive and acknowledge as Part ${part}/${totalParts} \n\n${obj}`;
       console.log(prompt);
-      await openai.createCompletion({
+
+      await openai.createChatCompletion({
         model: model,
-        prompt: prompt,
+        messages: [{role: "user", content: prompt }],
         temperature: temperature,
         max_tokens: maxResponseTokens,
         top_p: topP,
@@ -69,9 +70,10 @@ async function generateExplanation(changes) {
       let customPrompt = core.getInput('custom-prompt');
       let prompt = `This is part ${part} of ${totalParts}. ${customPrompt}\n\n${obj}`;
       console.log(prompt);
-      let response = await openai.createCompletion({
+
+      let response = await openai.createChatCompletion({
         model: model,
-        prompt: prompt,
+        messages: [{role: "user", content: prompt }],
         temperature: temperature,
         max_tokens: maxResponseTokens,
         top_p: topP,
@@ -79,7 +81,7 @@ async function generateExplanation(changes) {
         presence_penalty: presencePenalty,
       });
 
-      const explanation = response.data.choices[0].text.trim();
+      const explanation = response.data.choices[0].message.content.trim();
       return explanation;
     }
   }
