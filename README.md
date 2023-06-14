@@ -1,4 +1,4 @@
-# Explanation Generator using ChatGPT
+# Comment Creator using ChatGPT
 
 This repository contains a Github action that generates explanations of changes using the OpenAI API as a comment in pull request. It analyzes the differences between two commits in a pull request and provides a summary of the changes.
 
