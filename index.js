@@ -81,7 +81,7 @@ async function generateExplanation(changes) {
         messages: [{role: "user", content: prompt }],
       });
 
-      console.log(completion.data.choices[0].message)
+      console.log(response.data.choices[0].message)
 
       // let response = await openai.createChatCompletion({
       //   model: model,
