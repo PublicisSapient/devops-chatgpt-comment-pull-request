@@ -67,7 +67,7 @@ async function generateExplanation(changes) {
         presence_penalty: presence_penalty,
       });
     } else {
-      let customPrompt = core.getInput(custom-prompt);
+      let customPrompt = core.getInput('custom-prompt');
       let prompt = `This is part ${part} of ${totalParts}. ${customPrompt}\n\n${obj}`;
       console.log(prompt);
       let response = await openai.createCompletion({
