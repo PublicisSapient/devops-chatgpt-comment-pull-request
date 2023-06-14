@@ -21,7 +21,7 @@ inputs:
   model: 
     description: 'The model to use for the AI'
     required: false
-    default: 'text-davinci-003'
+    default: 'gpt-3.5-turbo'
   temperature:
     description: 'Parameter that controls how much randomness is in the output'
     required: false

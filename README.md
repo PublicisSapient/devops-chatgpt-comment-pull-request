@@ -42,7 +42,7 @@ This action will retrieve the pull request information and generate an explanati
 | `custom-prompt` | The prompt to feed to ChatGPT | Given the diff of all parts. Summarize the changes in 300 words or less | false
 | `max-prompt-tokens` | The max-prompt-tokens variable is used to limit the number of tokens that are sent to OpenAI when generating an explanation of the changes in a pull request. The default value of 10000 is used. | `10000` | false |
 | `ignore-paths` | Comma separated list of paths and files those needs to be ignored from explanation | `All files are scanned if nothing is provided` | false |
-| `model` | The model to use for the AI | `text-davinci-003` | false
+| `model` | The model to use for the AI | `gpt-3.5-turbo` | false
 | `temperature` | Parameter that controls how much randomness is in the input | `1` | false
 | `max-response-tokens` | The number of tokens allowed in the response | `256` | false
 | `top_p` | Controls how many of the highest-probability words are selected to be included in the generated text | `1` | false
