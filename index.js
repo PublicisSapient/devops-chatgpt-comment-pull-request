@@ -42,16 +42,16 @@ async function generateExplanation(changes) {
 
     let model = core.getInput('model');
     let temperature = core.getInput('temperature');
-    let max_tokens = core.getInput('max-tokens');
-    let top_p = core.getInput('top_p');
-    let frequency_penalty = core.getInput('frequency-penalty');
-    let presence_penalty = core.getInput('presence-penalty');
+    let maxResponseTokens = core.getInput('max-response-tokens');
+    let topP = core.getInput('top_p');
+    let frequencyPenalty = core.getInput('frequency-penalty');
+    let presencePenalty = core.getInput('presence-penalty');
     console.log('model = '+ model);
     console.log('temperature = '+ temperature);
-    console.log('max_tokens = '+max_tokens);
-    console.log('top_p = '+ top_p);
-    console.log('frequency_penalty = '+ frequency_penalty);
-    console.log('presence_penalty = '+ presence_penalty);
+    console.log('max_tokens = '+maxResponseTokens);
+    console.log('top_p = '+ topP);
+    console.log('frequency_penalty = '+ frequencyPenalty);
+    console.log('presence_penalty = '+ presencePenalty);
 
 
     if (part != totalParts) {
@@ -60,23 +60,24 @@ async function generateExplanation(changes) {
       await openai.createCompletion({
         model: "text-davinci-003",
         prompt: prompt,
-        temperature: 1,
-        max_tokens: 256,
-        top_p: 1,
-        frequency_penalty: 0,
-        presence_penalty: 0,
+        temperature: temperature,
+        max_tokens: maxResponseTokens,
+        top_p: topP,
+        frequency_penalty: frequencyPenalty,
+        presence_penalty: presencePenalty,
       });
     } else {
-      let prompt = `This is part ${part} of ${totalParts}. Given the diff of all parts. Summarize the changes in 300 words or less\n\n${obj}`;
+      let customPrompt = core.getInput('custom-prompt');
+      let prompt = `This is part ${part} of ${totalParts}. ${customPrompt}\n\n${obj}`;
       console.log(prompt);
       let response = await openai.createCompletion({
         model: "text-davinci-003",
         prompt: prompt,
-        temperature: 1,
-        max_tokens: 256,
-        top_p: 1,
-        frequency_penalty: 0,
-        presence_penalty: 0,
+        temperature: temperature,
+        max_tokens: maxResponseTokens,
+        top_p: topP,
+        frequency_penalty: frequencyPenalty,
+        presence_penalty: presencePenalty,
       });
 
       const explanation = response.data.choices[0].text.trim();
