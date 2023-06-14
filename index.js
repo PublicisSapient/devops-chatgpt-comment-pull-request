@@ -68,11 +68,18 @@ async function generateExplanation(changes) {
       });
     } else {
       console.log('model = '+ model);
+      console.log(typeof(model));
       console.log('temperature = '+ temperature);
+      console.log(typeof(temperature));
       console.log('max_tokens = '+maxResponseTokens);
+      console.log(typeof(maxResponseTokens));
       console.log('top_p = '+ topP);
+      console.log(typeof(topP));
       console.log('frequency_penalty = '+ frequencyPenalty);
+      console.log(typeof(frequencyPenalty));
       console.log('presence_penalty = '+ presencePenalty);
+      console.log(typeof(presencePenalty));
+
 
       let customPrompt = core.getInput('custom-prompt');
       let prompt = `This is part ${part} of ${totalParts}. ${customPrompt}\n\n${obj}`;
