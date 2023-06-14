@@ -26,7 +26,7 @@ inputs:
     description: 'Parameter that controls how much randomness is in the output'
     required: false
     default: 1
-  max-tokens:
+  max-response-tokens:
     description: 'The maximum number of tokens allowed in the response'
     required: false
     default: 256
