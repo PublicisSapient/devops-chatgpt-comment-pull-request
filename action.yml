@@ -14,6 +14,30 @@ inputs:
   ignore-paths:
     description: 'comma separated list of paths and files'
     required: false
+  model: 
+    description: 'The model to use for the AI'
+    required: false
+    default: 'text-davinci-003'
+  temperature:
+    description: 'Parameter that controls how much randomness is in the output'
+    required: false
+    default: 1
+  max-tokens:
+    description: 'The maximum number of tokens allowed in the response'
+    required: false
+    default: 256
+  top_p:
+    description: 'Controls how many of the highest-probability words are selected to be included in the generated text'
+    required: false
+    default: 1
+  frequency-penalty:
+    description: 'Reduces the probability of words that have already been generated.'
+    required: false
+    default: 0
+  presence-penalty:
+    description: 'Reduces the probability of a word if it already appeared in the predicted text'
+    required: false
+    default: 0
 runs:
   using: 'node16'
   main: 'dist/index.js'
