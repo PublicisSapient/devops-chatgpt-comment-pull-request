@@ -46,6 +46,12 @@ async function generateExplanation(changes) {
     let topP = parseInt(core.getInput('top_p'));
     let frequencyPenalty = parseInt(core.getInput('frequency-penalty'));
     let presencePenalty = parseInt(core.getInput('presence-penalty'));
+    console.log('model = '+ model);
+    console.log('temperature = '+ temperature);
+    console.log('max_tokens = '+maxResponseTokens);
+    console.log('top_p = '+ topP);
+    console.log('frequency_penalty = '+ frequencyPenalty);
+    console.log('presence_penalty = '+ presencePenalty);
 
     if (part != totalParts) {
       let prompt = `This is part ${part} of ${totalParts}. Just receive and acknowledge as Part ${part}/${totalParts} \n\n${obj}`;
@@ -60,7 +66,6 @@ async function generateExplanation(changes) {
         presence_penalty: presencePenalty,
       });
     } else {
-
       let customPrompt = core.getInput('custom-prompt');
       let prompt = `This is part ${part} of ${totalParts}. ${customPrompt}\n\n${obj}`;
       console.log(prompt);
