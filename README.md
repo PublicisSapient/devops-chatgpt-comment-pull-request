@@ -42,6 +42,7 @@ Action provides several configuration options that you can modify based on your 
 - `max-prompt-tokens`: The maximum number of tokens allowed in the prompt.
 - `ignore-paths`: Comma-separated list of file paths or patterns to ignore.
 - `model`: The OpenAI language model to use for generating explanations.
+- 
 
 ## Action.yml
 
@@ -57,6 +58,10 @@ inputs:
   open-api-key:
     description: 'OpenAPI Token'
     required: true
+  custom-prompt:
+    description: 'Prompt to feed to ChatGPT'
+    required: false
+    default: 'Given the diff of all parts. Summarize the changes in 300 words or less'
   max-prompt-tokens:
     description: 'The maximum number of tokens to use for the prompt'
     required: false
@@ -64,6 +69,30 @@ inputs:
   ignore-paths:
     description: 'comma separated list of paths and files'
     required: false
+  model: 
+    description: 'The model to use for the AI'
+    required: false
+    default: 'text-davinci-003'
+  temperature:
+    description: 'Parameter that controls how much randomness is in the output'
+    required: false
+    default: 1
+  max-response-tokens:
+    description: 'The maximum number of tokens allowed in the response'
+    required: false
+    default: 256
+  top_p:
+    description: 'Controls how many of the highest-probability words are selected to be included in the generated text'
+    required: false
+    default: 1
+  frequency-penalty:
+    description: 'Reduces the probability of words that have already been generated'
+    required: false
+    default: 0
+  presence-penalty:
+    description: 'Reduces the probability of a word if it already appeared in the predicted text'
+    required: false
+    default: 0
 runs:
   using: 'node16'
   main: 'dist/index.js'
@@ -113,6 +142,13 @@ jobs:
           open-api-key: ${{ secrets.CHATGPT_API_KEY }}
           max-prompt-tokens: '10000'
           ignore-paths: '.github/*, src/, package*.json, .env*'
+          model: 'text-davinci-003'
+          temperature: 1
+          max-response-tokens: 256
+          top_p: 1
+          frequency-penalty: 0
+          presence-penalty: 1
+
 ```
 
 An example based on the above reference configuration adds comment that look like this:
