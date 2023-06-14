@@ -58,7 +58,7 @@ async function generateExplanation(changes) {
       console.log(prompt);
 
       await openai.createChatCompletion({
-        model: "gpt-3.5-turbo",
+        model: model,
         messages: [{role: "user", content: prompt }],
         temperature: temperature,
         max_tokens: maxResponseTokens,
@@ -82,7 +82,7 @@ async function generateExplanation(changes) {
       console.log(prompt);
 
       let response = await openai.createChatCompletion({
-        model: "gpt-3.5-turbo",
+        model: model,
         messages: [{role: "user", content: prompt }],
         temperature: temperature,
         max_tokens: maxResponseTokens,
