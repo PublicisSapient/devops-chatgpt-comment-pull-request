@@ -30,9 +30,15 @@ This action will retrieve the pull request information and generate an explanati
 | --- | --- | --- | --- |
 | `github-token` | `GITHUB_TOKEN` (permissions `contents: write` and `pull-requests: write`) or a `repo` scoped [Personal Access Token (PAT)](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token). | `GITHUB_TOKEN` | true |
 | `open-api-key` | OPENAI API Token created from https://platform.openai.com/account/api-keys. | `CHATGPT_API_KEY` | true |
+| `custom-prompt` | The prompt to feed to ChatGPT | Given the diff of all parts. Summarize the changes in 300 words or less | false
 | `max-prompt-tokens` | The max-prompt-tokens variable is used to limit the number of tokens that are sent to OpenAI when generating an explanation of the changes in a pull request. The default value of 10000 is used. | `10000` | false |
 | `ignore-paths` | Comma separated list of paths and files those needs to be ignored from explanation | `All files are scanned if nothing is provided` | false |
-
+| `model` | The model to use for the AI | `text-davinci-003` | false
+| `temperature` | Parameter that controls how much randomness is in the input | `1` | false
+| `max-response-tokens` | The number of tokens allowed in the response | `256` | false
+| `top_p` | Controls how many of the highest-probability words are selected to be included in the generated text | `1` | false
+| `frequency-penalty` | Reduces the probability of words that have already been generated | `0` | false
+| `response-penalty` | Reduces the probability of a word if it already appeared in the predicted text |     `0` | false
 ## Configuration
 
 Action provides several configuration options that you can modify based on your requirements:
@@ -57,6 +63,10 @@ inputs:
   open-api-key:
     description: 'OpenAPI Token'
     required: true
+  custom-prompt:
+    description: 'Prompt to feed to ChatGPT'
+    required: false
+    default: 'Given the diff of all parts. Summarize the changes in 300 words or less'
   max-prompt-tokens:
     description: 'The maximum number of tokens to use for the prompt'
     required: false
@@ -64,6 +74,30 @@ inputs:
   ignore-paths:
     description: 'comma separated list of paths and files'
     required: false
+  model: 
+    description: 'The model to use for the AI'
+    required: false
+    default: 'text-davinci-003'
+  temperature:
+    description: 'Parameter that controls how much randomness is in the output'
+    required: false
+    default: 1
+  max-response-tokens:
+    description: 'The maximum number of tokens allowed in the response'
+    required: false
+    default: 256
+  top_p:
+    description: 'Controls how many of the highest-probability words are selected to be included in the generated text'
+    required: false
+    default: 1
+  frequency-penalty:
+    description: 'Reduces the probability of words that have already been generated'
+    required: false
+    default: 0
+  presence-penalty:
+    description: 'Reduces the probability of a word if it already appeared in the predicted text'
+    required: false
+    default: 0
 runs:
   using: 'node16'
   main: 'dist/index.js'
@@ -113,6 +147,13 @@ jobs:
           open-api-key: ${{ secrets.CHATGPT_API_KEY }}
           max-prompt-tokens: '10000'
           ignore-paths: '.github/*, src/, package*.json, .env*'
+          model: 'text-davinci-003'
+          temperature: 1
+          max-response-tokens: 256
+          top_p: 1
+          frequency-penalty: 0
+          presence-penalty: 1
+
 ```
 
 An example based on the above reference configuration adds comment that look like this:

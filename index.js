@@ -40,30 +40,43 @@ async function generateExplanation(changes) {
     console.log('Segment Tokens:', encode(JSON.stringify(obj)).length);
     console.log(`This is part ${part} of ${totalParts}`);
 
+    let model = core.getInput('model');
+    let temperature = parseInt(core.getInput('temperature'));
+    let maxResponseTokens = parseInt(core.getInput('max-response-tokens'));
+    let topP = parseInt(core.getInput('top_p'));
+    let frequencyPenalty = parseInt(core.getInput('frequency-penalty'));
+    let presencePenalty = parseInt(core.getInput('presence-penalty'));
+    console.log('model = '+ model);
+    console.log('temperature = '+ temperature);
+    console.log('max_tokens = '+maxResponseTokens);
+    console.log('top_p = '+ topP);
+    console.log('frequency_penalty = '+ frequencyPenalty);
+    console.log('presence_penalty = '+ presencePenalty);
+
     if (part != totalParts) {
       let prompt = `This is part ${part} of ${totalParts}. Just receive and acknowledge as Part ${part}/${totalParts} \n\n${obj}`;
       console.log(prompt);
-
       await openai.createCompletion({
-        model: "text-davinci-003",
+        model: model,
         prompt: prompt,
-        temperature: 1,
-        max_tokens: 256,
-        top_p: 1,
-        frequency_penalty: 0,
-        presence_penalty: 0,
+        temperature: temperature,
+        max_tokens: maxResponseTokens,
+        top_p: topP,
+        frequency_penalty: frequencyPenalty,
+        presence_penalty: presencePenalty,
       });
     } else {
-      let prompt = `This is part ${part} of ${totalParts}. Given the diff of all parts. Summarize the changes in 300 words or less\n\n${obj}`;
+      let customPrompt = core.getInput('custom-prompt');
+      let prompt = `This is part ${part} of ${totalParts}. ${customPrompt}\n\n${obj}`;
       console.log(prompt);
       let response = await openai.createCompletion({
-        model: "text-davinci-003",
+        model: model,
         prompt: prompt,
-        temperature: 1,
-        max_tokens: 256,
-        top_p: 1,
-        frequency_penalty: 0,
-        presence_penalty: 0,
+        temperature: temperature,
+        max_tokens: maxResponseTokens,
+        top_p: topP,
+        frequency_penalty: frequencyPenalty,
+        presence_penalty: presencePenalty,
       });
 
       const explanation = response.data.choices[0].text.trim();
