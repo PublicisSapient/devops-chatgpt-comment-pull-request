@@ -39,14 +39,17 @@ async function generateExplanation(changes) {
     let totalParts = segments.length;
     console.log('Segment Tokens:', encode(JSON.stringify(obj)).length);
     console.log(`This is part ${part} of ${totalParts}`);
+    
     let model = core.getInput('model');
     let temperature = core.getInput('temperature');
     let max_tokens = core.getInput('max-tokens');
     let top_p = core.getInput('top_p');
     let frequency_penalty = core.getInput('frequency-penalty');
     let presence_penalty = core.getInput('presence-penalty');
+
     if (part != totalParts) {
       let prompt = `This is part ${part} of ${totalParts}. Just receive and acknowledge as Part ${part}/${totalParts} \n\n${obj}`;
+      let custom_prompt 
       console.log(prompt);
       console.log('model = '+ model);
       console.log('temperature = '+ temperature);
@@ -65,7 +68,8 @@ async function generateExplanation(changes) {
         presence_penalty: presence_penalty,
       });
     } else {
-      let prompt = `This is part ${part} of ${totalParts}. Given the diff of all parts. Summarize the changes in 300 words or less\n\n${obj}`;
+      let customPrompt = core.getInput(custom-prompt);
+      let prompt = `This is part ${part} of ${totalParts}. ${customPrompt}\n\n${obj}`;
       console.log(prompt);
       let response = await openai.createCompletion({
         model: model,

@@ -7,6 +7,10 @@ inputs:
   open-api-key:
     description: 'OpenAPI Token'
     required: true
+  custom-prompt:
+    description: 'Prompt to '
+    required: false
+    default: 'Given the diff of all parts. Summarize the changes in 300 words or less'
   max-prompt-tokens:
     description: 'The maximum number of tokens to use for the prompt'
     required: false
