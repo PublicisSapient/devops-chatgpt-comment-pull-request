@@ -30,9 +30,15 @@ This action will retrieve the pull request information and generate an explanati
 | --- | --- | --- | --- |
 | `github-token` | `GITHUB_TOKEN` (permissions `contents: write` and `pull-requests: write`) or a `repo` scoped [Personal Access Token (PAT)](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token). | `GITHUB_TOKEN` | true |
 | `open-api-key` | OPENAI API Token created from https://platform.openai.com/account/api-keys. | `CHATGPT_API_KEY` | true |
+| `custom-prompt | The prompt to feed to ChatGPT | Given the diff of all parts. Summarize the changes in 300 words or less | false
 | `max-prompt-tokens` | The max-prompt-tokens variable is used to limit the number of tokens that are sent to OpenAI when generating an explanation of the changes in a pull request. The default value of 10000 is used. | `10000` | false |
 | `ignore-paths` | Comma separated list of paths and files those needs to be ignored from explanation | `All files are scanned if nothing is provided` | false |
-
+| `model` | The model to use for the AI | `text-davinci-003` | false
+| `temperature` | Parameter that controls how much randomness is in the input | `1` | false
+| `max-response-tokens` | The number of tokens allowed in the response | `256` | false
+| `top_p` | Controls how many of the highest-probability words are selected to be included in the generated text | `1` | false
+| `frequency-penalty` | Reduces the probability of words that have already been generated | `0` | false
+| `response-penalty` | Reduces the probability of a word if it already appeared in the predicted text |     `0` | false
 ## Configuration
 
 Action provides several configuration options that you can modify based on your requirements:
@@ -42,7 +48,6 @@ Action provides several configuration options that you can modify based on your 
 - `max-prompt-tokens`: The maximum number of tokens allowed in the prompt.
 - `ignore-paths`: Comma-separated list of file paths or patterns to ignore.
 - `model`: The OpenAI language model to use for generating explanations.
-- 
 
 ## Action.yml
 
