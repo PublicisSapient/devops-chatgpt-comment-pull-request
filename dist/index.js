@@ -24953,26 +24953,25 @@ async function generateExplanation(changes) {
       let prompt = `This is part ${part} of ${totalParts}. Just receive and acknowledge as Part ${part}/${totalParts} \n\n${obj}`;
       console.log(prompt);
       await openai.createCompletion({
-        model: model,
+        model: "text-davinci-003",
         prompt: prompt,
-        temperature: temperature,
-        max_tokens: max_tokens,
-        top_p: top_p,
-        frequency_penalty: frequency_penalty,
-        presence_penalty: presence_penalty,
+        temperature: 1,
+        max_tokens: 256,
+        top_p: 1,
+        frequency_penalty: 0,
+        presence_penalty: 0,
       });
     } else {
-      let customPrompt = core.getInput('custom-prompt');
-      let prompt = `This is part ${part} of ${totalParts}. ${customPrompt}\n\n${obj}`;
+      let prompt = `This is part ${part} of ${totalParts}. Given the diff of all parts. Summarize the changes in 300 words or less\n\n${obj}`;
       console.log(prompt);
       let response = await openai.createCompletion({
-        model: model,
+        model: "text-davinci-003",
         prompt: prompt,
-        temperature: temperature,
-        max_tokens: max_tokens,
-        top_p: top_p,
-        frequency_penalty: frequency_penalty,
-        presence_penalty: presence_penalty,
+        temperature: 1,
+        max_tokens: 256,
+        top_p: 1,
+        frequency_penalty: 0,
+        presence_penalty: 0,
       });
 
       const explanation = response.data.choices[0].text.trim();
