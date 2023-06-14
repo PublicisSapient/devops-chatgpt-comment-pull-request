@@ -39,7 +39,7 @@ This action will retrieve the pull request information and generate an explanati
 | --- | --- | --- | --- |
 | `github-token` | `GITHUB_TOKEN` (permissions `contents: write` and `pull-requests: write`) or a `repo` scoped [Personal Access Token (PAT)](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token). | `GITHUB_TOKEN` | true |
 | `open-api-key` | OPENAI API Token created from https://platform.openai.com/account/api-keys. | `CHATGPT_API_KEY` | true |
-| `custom-prompt` | The prompt to feed to ChatGPT | Given the diff of all parts. Summarize the changes in 300 words or less | false
+| `custom-prompt` | The prompt to feed to ChatGPT | Given all the parts. Summarize the changes in 300 words or less | false
 | `max-prompt-tokens` | The max-prompt-tokens variable is used to limit the number of tokens that are sent to OpenAI when generating an explanation of the changes in a pull request. The default value of 10000 is used. | `10000` | false |
 | `ignore-paths` | Comma separated list of paths and files those needs to be ignored from explanation | `All files are scanned if nothing is provided` | false |
 | `model` | The model to use for the AI | `gpt-3.5-turbo` | false
