@@ -61,9 +61,9 @@ async function generateExplanation(changes) {
         prompt: prompt,
         temperature: temperature,
         max_tokens: maxResponseTokens,
-        top_p: topP,
-        frequency_penalty: frequencyPenalty,
-        presence_penalty: presencePenalty,
+        // top_p: topP,
+        // frequency_penalty: frequencyPenalty,
+        // presence_penalty: presencePenalty,
       });
     } else {
       let customPrompt = core.getInput('custom-prompt');
@@ -74,9 +74,9 @@ async function generateExplanation(changes) {
         prompt: prompt,
         temperature: temperature,
         max_tokens: maxResponseTokens,
-        top_p: topP,
-        frequency_penalty: frequencyPenalty,
-        presence_penalty: presencePenalty,
+        // top_p: topP,
+        // frequency_penalty: frequencyPenalty,
+        // presence_penalty: presencePenalty,
       });
 
       const explanation = response.data.choices[0].text.trim();
