@@ -10,7 +10,7 @@ inputs:
   max-prompt-tokens:
     description: 'The maximum number of tokens to use for the prompt'
     required: false
-    default: '2048'
+    default: '10000'
   ignore-paths:
     description: 'comma separated list of paths and files'
     required: false
