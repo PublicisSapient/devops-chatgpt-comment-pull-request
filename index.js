@@ -60,6 +60,11 @@ async function generateExplanation(changes) {
       await openai.createChatCompletion({
         model: "gpt-3.5-turbo",
         messages: [{role: "user", content: prompt }],
+        temperature: temperature,
+        max_tokens: maxResponseTokens,
+        top_p: topP,
+        frequency_penalty: frequencyPenalty,
+        presence_penalty: presencePenalty,
       });
 
       // await openai.createChatCompletion({
@@ -79,6 +84,11 @@ async function generateExplanation(changes) {
       let response = await openai.createChatCompletion({
         model: "gpt-3.5-turbo",
         messages: [{role: "user", content: prompt }],
+        temperature: temperature,
+        max_tokens: maxResponseTokens,
+        top_p: topP,
+        frequency_penalty: frequencyPenalty,
+        presence_penalty: presencePenalty,
       });
 
       console.log(response.data.choices[0].message)
