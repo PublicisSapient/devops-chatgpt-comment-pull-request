@@ -59,7 +59,7 @@ async function generateExplanation(changes) {
 
       await openai.createChatCompletion({
         model: "gpt-3.5-turbo",
-        messages: [{"role": "system", "content": "You are a helpful assistant."}, {role: "user", content: prompt }],
+        messages: [{role: "user", content: prompt }],
       });
 
       // await openai.createChatCompletion({
@@ -78,8 +78,10 @@ async function generateExplanation(changes) {
 
       let response = await openai.createChatCompletion({
         model: "gpt-3.5-turbo",
-        messages: [{"role": "system", "content": "You are a helpful assistant."}, {role: "user", content: prompt }],
+        messages: [{role: "user", content: prompt }],
       });
+
+      console.log(completion.data.choices[0].message)
 
       // let response = await openai.createChatCompletion({
       //   model: model,
@@ -91,7 +93,7 @@ async function generateExplanation(changes) {
       //   // presence_penalty: presencePenalty,
       // });
 
-      const explanation = response.data.choices[0].text.trim();
+      const explanation = response.data.choices[0].message.trim();
       return explanation;
     }
   }
