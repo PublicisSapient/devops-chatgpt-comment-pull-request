@@ -24988,7 +24988,7 @@ async function generateExplanation(changes) {
       //   // presence_penalty: presencePenalty,
       // });
 
-      const explanation = response.data.choices[0].message.trim();
+      const explanation = response.data.choices[0].message.content.trim();
       return explanation;
     }
   }
