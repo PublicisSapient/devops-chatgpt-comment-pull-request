@@ -56,28 +56,40 @@ async function generateExplanation(changes) {
     if (part != totalParts) {
       let prompt = `This is part ${part} of ${totalParts}. Just receive and acknowledge as Part ${part}/${totalParts} \n\n${obj}`;
       console.log(prompt);
-      await openai.createCompletion({
-        model: model,
-        prompt: prompt,
-        temperature: temperature,
-        max_tokens: maxResponseTokens,
-        // top_p: topP,
-        // frequency_penalty: frequencyPenalty,
-        // presence_penalty: presencePenalty,
+
+      await openai.createChatCompletion({
+        model: "gpt-3.5-turbo",
+        messages: [{"role": "system", "content": "You are a helpful assistant."}, {role: "user", content: prompt }],
       });
+
+      // await openai.createChatCompletion({
+      //   model: model,
+      //   prompt: prompt,
+      //   temperature: temperature,
+      //   max_tokens: maxResponseTokens,
+      //   // top_p: topP,
+      //   // frequency_penalty: frequencyPenalty,
+      //   // presence_penalty: presencePenalty,
+      // });
     } else {
       let customPrompt = core.getInput('custom-prompt');
       let prompt = `This is part ${part} of ${totalParts}. ${customPrompt}\n\n${obj}`;
       console.log(prompt);
-      let response = await openai.createCompletion({
-        model: model,
-        prompt: prompt,
-        temperature: temperature,
-        max_tokens: maxResponseTokens,
-        // top_p: topP,
-        // frequency_penalty: frequencyPenalty,
-        // presence_penalty: presencePenalty,
+
+      let response = await openai.createChatCompletion({
+        model: "gpt-3.5-turbo",
+        messages: [{"role": "system", "content": "You are a helpful assistant."}, {role: "user", content: prompt }],
       });
+
+      // let response = await openai.createChatCompletion({
+      //   model: model,
+      //   prompt: prompt,
+      //   temperature: temperature,
+      //   max_tokens: maxResponseTokens,
+      //   // top_p: topP,
+      //   // frequency_penalty: frequencyPenalty,
+      //   // presence_penalty: presencePenalty,
+      // });
 
       const explanation = response.data.choices[0].text.trim();
       return explanation;
