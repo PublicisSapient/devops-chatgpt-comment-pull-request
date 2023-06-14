@@ -66,16 +66,6 @@ async function generateExplanation(changes) {
         frequency_penalty: frequencyPenalty,
         presence_penalty: presencePenalty,
       });
-
-      // await openai.createChatCompletion({
-      //   model: model,
-      //   prompt: prompt,
-      //   temperature: temperature,
-      //   max_tokens: maxResponseTokens,
-      //   // top_p: topP,
-      //   // frequency_penalty: frequencyPenalty,
-      //   // presence_penalty: presencePenalty,
-      // });
     } else {
       let customPrompt = core.getInput('custom-prompt');
       let prompt = `This is part ${part} of ${totalParts}. ${customPrompt}\n\n${obj}`;
@@ -90,18 +80,6 @@ async function generateExplanation(changes) {
         frequency_penalty: frequencyPenalty,
         presence_penalty: presencePenalty,
       });
-
-      console.log(response.data.choices[0].message)
-
-      // let response = await openai.createChatCompletion({
-      //   model: model,
-      //   prompt: prompt,
-      //   temperature: temperature,
-      //   max_tokens: maxResponseTokens,
-      //   // top_p: topP,
-      //   // frequency_penalty: frequencyPenalty,
-      //   // presence_penalty: presencePenalty,
-      // });
 
       const explanation = response.data.choices[0].message.content.trim();
       return explanation;
