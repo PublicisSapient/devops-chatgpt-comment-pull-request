@@ -26,22 +26,27 @@ inputs:
     description: 'Parameter that controls how much randomness is in the output'
     required: false
     default: 1
+    type: number
   max-response-tokens:
     description: 'The maximum number of tokens allowed in the response'
     required: false
     default: 256
+    type: number
   top_p:
     description: 'Controls how many of the highest-probability words are selected to be included in the generated text'
     required: false
     default: 1
+    type: number
   frequency-penalty:
     description: 'Reduces the probability of words that have already been generated.'
     required: false
     default: 0
+    type: number
   presence-penalty:
     description: 'Reduces the probability of a word if it already appeared in the predicted text'
     required: false
     default: 0
+    type: number
 runs:
   using: 'node16'
   main: 'dist/index.js'
