@@ -8,7 +8,7 @@ inputs:
     description: 'OpenAPI Token'
     required: true
   custom-prompt:
-    description: 'Prompt to '
+    description: 'Prompt to feed to ChatGPT'
     required: false
     default: 'Given the diff of all parts. Summarize the changes in 300 words or less'
   max-prompt-tokens:
@@ -35,7 +35,7 @@ inputs:
     required: false
     default: 1
   frequency-penalty:
-    description: 'Reduces the probability of words that have already been generated.'
+    description: 'Reduces the probability of words that have already been generated'
     required: false
     default: 0
   presence-penalty:
