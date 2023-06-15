@@ -24914,8 +24914,24 @@ async function generateExplanation(changes) {
   const encodedDiff = encode(JSON.stringify(changes));
   const totalTokens = encode(JSON.stringify(changes)).length;
 
+  let model = core.getInput('model');
+  let temperature = parseInt(core.getInput('temperature'));
+  let maxResponseTokens = parseInt(core.getInput('max-response-tokens'));
+  let topP = parseInt(core.getInput('top_p'));
+  let frequencyPenalty = parseInt(core.getInput('frequency-penalty'));
+  let presencePenalty = parseInt(core.getInput('presence-penalty'));
+  let segmentSize = parseInt(core.getInput('segment-size'));
+
+  console.log('model = '+ model);
+  console.log('temperature = '+ temperature);
+  console.log('max_tokens = '+maxResponseTokens);
+  console.log('top_p = '+ topP);
+  console.log('frequency_penalty = '+ frequencyPenalty);
+  console.log('presence_penalty = '+ presencePenalty);
+  console.log('Segment Size = '+ segmentSize);
+
   // Function to split the incoming changes into smaller chunks.
-  function splitStringIntoSegments(encodedDiff, totalTokens, segmentSize = 3096) {
+  function splitStringIntoSegments(encodedDiff, totalTokens, segmentSize) {
     const segments = [];
 
     for (let i = 0; i < totalTokens; i += segmentSize) {
@@ -24924,7 +24940,7 @@ async function generateExplanation(changes) {
     return segments;
   }
 
-  const segments = splitStringIntoSegments(encodedDiff, totalTokens);
+  const segments = splitStringIntoSegments(encodedDiff, totalTokens, segmentSize);
 
   // Loop through each segment and send the request to OpenAI.
   // If the segment is not the last segment, just receive and acknowledge. Otherwise, return the response.
@@ -24934,19 +24950,6 @@ async function generateExplanation(changes) {
     let totalParts = segments.length;
     console.log('Segment Tokens:', encode(JSON.stringify(obj)).length);
     console.log(`This is part ${part} of ${totalParts}`);
-
-    let model = core.getInput('model');
-    let temperature = parseInt(core.getInput('temperature'));
-    let maxResponseTokens = parseInt(core.getInput('max-response-tokens'));
-    let topP = parseInt(core.getInput('top_p'));
-    let frequencyPenalty = parseInt(core.getInput('frequency-penalty'));
-    let presencePenalty = parseInt(core.getInput('presence-penalty'));
-    console.log('model = '+ model);
-    console.log('temperature = '+ temperature);
-    console.log('max_tokens = '+maxResponseTokens);
-    console.log('top_p = '+ topP);
-    console.log('frequency_penalty = '+ frequencyPenalty);
-    console.log('presence_penalty = '+ presencePenalty);
 
     if (part != totalParts) {
       let prompt = `This is part ${part} of ${totalParts}. Just receive and acknowledge as Part ${part}/${totalParts} \n\n${obj}`;
@@ -24961,16 +24964,6 @@ async function generateExplanation(changes) {
         frequency_penalty: frequencyPenalty,
         presence_penalty: presencePenalty,
       });
-
-      // await openai.createChatCompletion({
-      //   model: model,
-      //   prompt: prompt,
-      //   temperature: temperature,
-      //   max_tokens: maxResponseTokens,
-      //   // top_p: topP,
-      //   // frequency_penalty: frequencyPenalty,
-      //   // presence_penalty: presencePenalty,
-      // });
     } else {
       let customPrompt = core.getInput('custom-prompt');
       let prompt = `This is part ${part} of ${totalParts}. ${customPrompt}\n\n${obj}`;
@@ -24985,18 +24978,6 @@ async function generateExplanation(changes) {
         frequency_penalty: frequencyPenalty,
         presence_penalty: presencePenalty,
       });
-
-      console.log(response.data.choices[0].message)
-
-      // let response = await openai.createChatCompletion({
-      //   model: model,
-      //   prompt: prompt,
-      //   temperature: temperature,
-      //   max_tokens: maxResponseTokens,
-      //   // top_p: topP,
-      //   // frequency_penalty: frequencyPenalty,
-      //   // presence_penalty: presencePenalty,
-      // });
 
       const explanation = response.data.choices[0].message.content.trim();
       return explanation;
