@@ -25052,7 +25052,8 @@ try {
       // Get the data and output the file changes.
       const compareData = compareResponse.data;
       const fileChanges = compareData.files;
-      const commits = JSON.stringify(compareData.commits)
+      let commits = JSON.stringify(compareData.commits);
+      commits = JSON.parse(commits);
       console.log(commits)
       const commitMessages = commits.map(item => item.commit.message);
       const changes = (`Commit Messages: ${commitMessages}\n\nFile Changes: ${fileChanges}` );
