@@ -90,17 +90,6 @@ async function generateExplanation(changes) {
   }
 }
 
-// Function to Get Parent SHA from Branch
-async function getParentSha(url, headers) {
-
-  let response = await axios.get(url, {headers: headers });
-
-  const baseCommitSha = response.data.commit.parents[0].sha;
-  console.log(baseCommitSha);
-  return baseCommitSha;
-
-}
-
 try {
   // Get the PR number, repository, and token from the GitHub webhook payload
   const payload = JSON.stringify(github.context.payload, undefined, 2);
@@ -126,35 +115,18 @@ try {
 
     })
     .then((pullRequestData) => {
-      const numComments = pullRequestData.comments;
+      // const numComments = pullRequestData.comments;
       const headCommitSha = pullRequestData.head.sha;
+      const baseCommitSha = pullRequestData.base.sha;
 
-      console.log('Number of Comments:', numComments);
       console.log('Head Sha:', headCommitSha);
-      console.log('PR URL:', pullRequestUrl);
-      console.log('PR Headers', headers);
+      console.log('Base Sha:', baseCommitSha);
 
-      if (numComments == 0) {
-        console.log('Number of Comments is 0')
-        console.log('Compare against base sha')
-        const baseCommitSha = pullRequestData.base.sha;
 
-        return Promise.all([
-          headCommitSha,
-          baseCommitSha,
-        ])
-      } else {
-        console.log('Number of Comments is NOT 0')
-        console.log('Compare against parent sha')
-        const pullRequestBranch = pullRequestData.head.ref;
-        const branchRequestUrl = `https://api.github.com/repos/${repository}/branches/${pullRequestBranch}`;
-        const baseCommitSha = getParentSha(branchRequestUrl, headers);
-
-        return Promise.all([
-          headCommitSha,
-          baseCommitSha,
-        ])
-      }
+      return Promise.all([
+        headCommitSha,
+        baseCommitSha,
+      ])
 
     })
     .then(([headCommitSha, baseCommitSha]) => {
@@ -184,7 +156,9 @@ try {
     .then((compareResponse) => {
       // Get the data and output the file changes.
       const compareData = compareResponse.data;
-      const changes = compareData.files;
+      const fileChanges = compareData.files;
+      const commitMessages = compareData.map(item => item.commit.message);
+      const changes = (`Commit Messages: ${commitMessages}\n\nFile Changes: ${fileChanges}` );
 
       // Calculate the token count of the prompt
       const tokens = encode(JSON.stringify(changes)).length;
