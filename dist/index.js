@@ -24989,7 +24989,7 @@ async function generateExplanation(changes) {
 async function getParentSha(url, headers) {
 
   let response = await axios.get(url, {headers: headers });
-
+  console.log(response.data.commit.parents)
   const baseCommitSha = response.data.commit.parents[0].sha;
   console.log(baseCommitSha);
   return baseCommitSha;
