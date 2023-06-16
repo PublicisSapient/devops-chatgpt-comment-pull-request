@@ -25057,6 +25057,7 @@ try {
       console.log(commits)
       const commitMessages = commits.map(item => item.commit.message);
       const changes = (`Commit Messages: ${commitMessages}\n\nFile Changes: ${fileChanges}` );
+      console.log(changes);
 
       // Calculate the token count of the prompt
       const tokens = encode(JSON.stringify(changes)).length;
