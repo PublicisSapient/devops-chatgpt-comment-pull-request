@@ -155,7 +155,7 @@ try {
     })
     .then((compareResponse) => {
       // Get the data and output the file changes.
-      const compareData = compareResponse.data;
+      const compareData = JSON.stringify(compareResponse.data);
       const fileChanges = compareData.files;
       const commitMessages = compareData.map(item => item.commit.message);
       const changes = (`Commit Messages: ${commitMessages}\n\nFile Changes: ${fileChanges}` );
