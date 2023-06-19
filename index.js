@@ -191,7 +191,7 @@ try {
       // Filter out ignored files and paths
       const filteredChanges = JSON.stringify(fileChanges.filter(change => !shouldIgnore(change.filename)));
       const changes = (`Commit Messages: ${commitMessages}\n\nFile Changes: ${filteredChanges}` );
-      console.log(changes);
+      // console.log(changes);
 
       // Calculate the token count of the prompt
       const tokens = encode(JSON.stringify(changes)).length;
