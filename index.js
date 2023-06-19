@@ -191,7 +191,7 @@ try {
       // Filter out ignored files and paths
       const filteredChanges = fileChanges.filter(change => !shouldIgnore(change.filename));
       const changes = (`Commit Messages: ${commitMessages}\n\nFile Changes: ${filteredChanges}` );
-      console.log(filteredChanges);
+      console.log(changes);
 
       // Calculate the token count of the prompt
       const tokens = encode(JSON.stringify(changes)).length;
@@ -201,13 +201,13 @@ try {
       console.log('Prompt Token Count:', tokens);
       console.log('Max Prompt Tokens: ', maxPromptTokens);
 
-      if (tokens > maxPromptTokens || (ignorePathsInput && filteredChanges.length === 0)) {
-        console.log('Skipping Comment due to Max Tokens or No Changes after Filtering');
-        const explanation = 'skipping comment';
-        return explanation;
-      } else {
-        return generateExplanation(changes);
-      }
+      // if (tokens > maxPromptTokens || (ignorePathsInput && filteredChanges.length === 0)) {
+      //   console.log('Skipping Comment due to Max Tokens or No Changes after Filtering');
+      //   const explanation = 'skipping comment';
+      //   return explanation;
+      // } else {
+      //   return generateExplanation(changes);
+      // }
     })
     // .then((explanation) => {
     //   // Create the GitHub Comment
