@@ -24991,7 +24991,7 @@ try {
   const jsonData = JSON.parse(payload);
   console.log(jsonData);
   const pullRequestNumber = jsonData.number;
-  const pullRequestTitle = jsonData.title;
+  const pullRequestTitle = jsonData.pull_request.title;
   console.log('PR Title', pullRequestTitle);
   const repository = jsonData.pull_request.base.repo.full_name;
   const token = core.getInput('github-token');
