@@ -24989,10 +24989,8 @@ try {
   // Get the PR number, repository, and token from the GitHub webhook payload
   const payload = JSON.stringify(github.context.payload, undefined, 2);
   const jsonData = JSON.parse(payload);
-  console.log(jsonData);
   const pullRequestNumber = jsonData.number;
   const pullRequestTitle = jsonData.pull_request.title;
-  console.log('PR Title', pullRequestTitle);
   const repository = jsonData.pull_request.base.repo.full_name;
   const token = core.getInput('github-token');
 
@@ -25055,11 +25053,6 @@ try {
       // Get the data and output the file changes.
       const compareData = compareResponse.data;
       const fileChanges = compareData.files;
-      // let commits = JSON.stringify(compareData.commits);
-      // commits = JSON.parse(commits);
-      // console.log(commits)
-      // const commitMessages = commits.map(item => item.commit.message);
-      // console.log(commitMessages);
 
       let ignorePathsInput = core.getInput('ignore-paths');
       let ignorePaths = [];
@@ -25099,39 +25092,39 @@ try {
       console.log('Prompt Token Count:', tokens);
       console.log('Max Prompt Tokens: ', maxPromptTokens);
 
-      // if (tokens > maxPromptTokens || (ignorePathsInput && filteredChanges.length === 0)) {
-      //   console.log('Skipping Comment due to Max Tokens or No Changes after Filtering');
-      //   const explanation = 'skipping comment';
-      //   return explanation;
-      // } else {
-      //   return generateExplanation(changes);
-      // }
+      if (tokens > maxPromptTokens || (ignorePathsInput && filteredChanges.length === 0)) {
+        console.log('Skipping Comment due to Max Tokens or No Changes after Filtering');
+        const explanation = 'skipping comment';
+        return explanation;
+      } else {
+        return generateExplanation(changes);
+      }
     })
-    // .then((explanation) => {
-    //   // Create the GitHub Comment
-    //   console.log(explanation.split('-').join('\n'));
+    .then((explanation) => {
+      // Create the GitHub Comment
+      console.log(explanation.split('-').join('\n'));
 
-    //   // Create a comment with the generated explanation
-    //   const octokit = new Octokit({ auth: token });
-    //   const comment = `Explanation of Changes (Generated via OpenAI):\n\n${JSON.stringify(explanation)}`;
+      // Create a comment with the generated explanation
+      const octokit = new Octokit({ auth: token });
+      const comment = `Explanation of Changes (Generated via OpenAI):\n\n${JSON.stringify(explanation)}`;
 
-    //   async function createComment() {
-    //     const newComment = await octokit.issues.createComment({
-    //       ...githubContext.repo,
-    //       issue_number: githubContext.issue.number,
-    //       body: comment
-    //     });
+      async function createComment() {
+        const newComment = await octokit.issues.createComment({
+          ...githubContext.repo,
+          issue_number: githubContext.issue.number,
+          body: comment
+        });
 
-    //     console.log(`Comment added: ${newComment.data.html_url}`);
-    //   }
+        console.log(`Comment added: ${newComment.data.html_url}`);
+      }
 
-    //   // Create Comment if Explanation does not contain 'skipping comment' due to max tokens limit
-    //   if (explanation == 'skipping comment') {
-    //     console.log('Skipping Comment due to Max Tokens or No Changes after Filtering');
-    //   } else {
-    //     createComment();
-    //   }
-    // })
+      // Create Comment if Explanation does not contain 'skipping comment' due to max tokens limit
+      if (explanation == 'skipping comment') {
+        console.log('Skipping Comment due to Max Tokens or No Changes after Filtering');
+      } else {
+        createComment();
+      }
+    })
     .catch((error) => {
       console.error(error);
     });

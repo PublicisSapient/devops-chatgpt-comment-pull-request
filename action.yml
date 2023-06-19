@@ -4,7 +4,7 @@ inputs:
   custom-prompt:
     description: 'Prompt to feed to ChatGPT'
     required: false
-    default: 'Based on the commit messages and file changes. Summarize the changes in 300 words or less'
+    default: 'Based on the pull request title and file changes. Summarize the changes in 300 words or less'
   frequency-penalty:
     description: 'Reduces the probability of words that have already been generated'
     required: false
