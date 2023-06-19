@@ -189,7 +189,7 @@ try {
       }
 
       // Filter out ignored files and paths
-      const filteredChanges = fileChanges.filter(change => !shouldIgnore(change.filename));
+      const filteredChanges = JSON.stringify(fileChanges.filter(change => !shouldIgnore(change.filename)));
       const changes = (`Commit Messages: ${commitMessages}\n\nFile Changes: ${filteredChanges}` );
       console.log(changes);
 
