@@ -25096,13 +25096,13 @@ try {
       console.log('Prompt Token Count:', tokens);
       console.log('Max Prompt Tokens: ', maxPromptTokens);
 
-      // if (tokens > maxPromptTokens || (ignorePathsInput && filteredChanges.length === 0)) {
-      //   console.log('Skipping Comment due to Max Tokens or No Changes after Filtering');
-      //   const explanation = 'skipping comment';
-      //   return explanation;
-      // } else {
-      //   return generateExplanation(changes);
-      // }
+      if (tokens > maxPromptTokens || (ignorePathsInput && filteredChanges.length === 0)) {
+        console.log('Skipping Comment due to Max Tokens or No Changes after Filtering');
+        const explanation = 'skipping comment';
+        return explanation;
+      } else {
+        return generateExplanation(changes);
+      }
     })
     // .then((explanation) => {
     //   // Create the GitHub Comment
