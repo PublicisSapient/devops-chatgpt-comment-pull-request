@@ -25104,34 +25104,34 @@ try {
         return generateExplanation(changes);
       }
     })
-    // .then((explanation) => {
-    //   // Create the GitHub Comment
-    //   console.log(explanation.split('-').join('\n'));
+    .then((explanation) => {
+      // Create the GitHub Comment
+      console.log(explanation.split('-').join('\n'));
 
-    //   // Create a comment with the generated explanation
-    //   const octokit = new Octokit({ auth: token });
-    //   const comment = `Explanation of Changes (Generated via OpenAI):\n\n${JSON.stringify(explanation)}`;
+      // Create a comment with the generated explanation
+      const octokit = new Octokit({ auth: token });
+      const comment = `Explanation of Changes (Generated via OpenAI):\n\n${JSON.stringify(explanation)}`;
 
-    //   async function createComment() {
-    //     const newComment = await octokit.issues.createComment({
-    //       ...githubContext.repo,
-    //       issue_number: githubContext.issue.number,
-    //       body: comment
-    //     });
+      async function createComment() {
+        const newComment = await octokit.issues.createComment({
+          ...githubContext.repo,
+          issue_number: githubContext.issue.number,
+          body: comment
+        });
 
-    //     console.log(`Comment added: ${newComment.data.html_url}`);
-    //   }
+        console.log(`Comment added: ${newComment.data.html_url}`);
+      }
 
-    //   // Create Comment if Explanation does not contain 'skipping comment' due to max tokens limit
-    //   if (explanation == 'skipping comment') {
-    //     console.log('Skipping Comment due to Max Tokens or No Changes after Filtering');
-    //   } else {
-    //     createComment();
-    //   }
-    // })
-    // .catch((error) => {
-    //   console.error(error);
-    // });
+      // Create Comment if Explanation does not contain 'skipping comment' due to max tokens limit
+      if (explanation == 'skipping comment') {
+        console.log('Skipping Comment due to Max Tokens or No Changes after Filtering');
+      } else {
+        createComment();
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
 
 } catch (error) {
   core.setFailed(error.message);
