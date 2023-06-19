@@ -94,6 +94,7 @@ try {
   // Get the PR number, repository, and token from the GitHub webhook payload
   const payload = JSON.stringify(github.context.payload, undefined, 2);
   const jsonData = JSON.parse(payload);
+  console.log(jsonData);
   const pullRequestNumber = jsonData.number;
   const pullRequestTitle = jsonData.title;
   const repository = jsonData.pull_request.base.repo.full_name;
