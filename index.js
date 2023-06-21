@@ -90,22 +90,12 @@ async function generateExplanation(changes) {
   }
 }
 
-// Function to Get Parent SHA from Branch
-async function getParentSha(url, headers) {
-
-  let response = await axios.get(url, {headers: headers });
-
-  const baseCommitSha = response.data.commit.parents[0].sha;
-  console.log(baseCommitSha);
-  return baseCommitSha;
-
-}
-
 try {
   // Get the PR number, repository, and token from the GitHub webhook payload
   const payload = JSON.stringify(github.context.payload, undefined, 2);
   const jsonData = JSON.parse(payload);
   const pullRequestNumber = jsonData.number;
+  const pullRequestTitle = jsonData.pull_request.title;
   const repository = jsonData.pull_request.base.repo.full_name;
   const token = core.getInput('github-token');
 
@@ -126,35 +116,14 @@ try {
 
     })
     .then((pullRequestData) => {
-      const numComments = pullRequestData.comments;
+      // const numComments = pullRequestData.comments;
       const headCommitSha = pullRequestData.head.sha;
+      const baseCommitSha = pullRequestData.base.sha;
 
-      console.log('Number of Comments:', numComments);
-      console.log('Head Sha:', headCommitSha);
-      console.log('PR URL:', pullRequestUrl);
-      console.log('PR Headers', headers);
-
-      if (numComments == 0) {
-        console.log('Number of Comments is 0')
-        console.log('Compare against base sha')
-        const baseCommitSha = pullRequestData.base.sha;
-
-        return Promise.all([
-          headCommitSha,
-          baseCommitSha,
-        ])
-      } else {
-        console.log('Number of Comments is NOT 0')
-        console.log('Compare against parent sha')
-        const pullRequestBranch = pullRequestData.head.ref;
-        const branchRequestUrl = `https://api.github.com/repos/${repository}/branches/${pullRequestBranch}`;
-        const baseCommitSha = getParentSha(branchRequestUrl, headers);
-
-        return Promise.all([
-          headCommitSha,
-          baseCommitSha,
-        ])
-      }
+      return Promise.all([
+        headCommitSha,
+        baseCommitSha,
+      ])
 
     })
     .then(([headCommitSha, baseCommitSha]) => {
@@ -184,15 +153,7 @@ try {
     .then((compareResponse) => {
       // Get the data and output the file changes.
       const compareData = compareResponse.data;
-      const changes = compareData.files;
-
-      // Calculate the token count of the prompt
-      const tokens = encode(JSON.stringify(changes)).length;
-      const maxPromptTokens = core.getInput('max-prompt-tokens'); // Maximum prompt tokens allowed
-
-      // Print Prompt Token Count & Max Prompt Tokens
-      console.log('Prompt Token Count:', tokens);
-      console.log('Max Prompt Tokens: ', maxPromptTokens);
+      const fileChanges = compareData.files;
 
       let ignorePathsInput = core.getInput('ignore-paths');
       let ignorePaths = [];
@@ -220,14 +181,23 @@ try {
       }
 
       // Filter out ignored files and paths
-      const filteredChanges = changes.filter(change => !shouldIgnore(change.filename));
+      const filteredChanges = JSON.stringify(fileChanges.filter(change => !shouldIgnore(change.filename)));
+      const changes = (`Pull Request Title: ${pullRequestTitle}\n\nFile Changes: ${filteredChanges}` );
+
+      // Calculate the token count of the prompt
+      const tokens = encode(JSON.stringify(changes)).length;
+      const maxPromptTokens = core.getInput('max-prompt-tokens'); // Maximum prompt tokens allowed
+
+      // Print Prompt Token Count & Max Prompt Tokens
+      console.log('Prompt Token Count:', tokens);
+      console.log('Max Prompt Tokens: ', maxPromptTokens);
 
       if (tokens > maxPromptTokens || (ignorePathsInput && filteredChanges.length === 0)) {
         console.log('Skipping Comment due to Max Tokens or No Changes after Filtering');
         const explanation = 'skipping comment';
         return explanation;
       } else {
-        return generateExplanation(filteredChanges);
+        return generateExplanation(changes);
       }
     })
     .then((explanation) => {

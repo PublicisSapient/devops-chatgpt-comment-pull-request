@@ -1,0 +1,21 @@
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  chatgptComment:
+    runs-on: ubuntu-latest
+    name: Autgenerate Comment
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        
+      - name: Autgenerate Comment
+        uses: ./
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          open-api-key: ${{ secrets.CHATGPT_API_KEY }}
+          max-prompt-tokens: '50000'
+          ignore-paths: 'dist, .gitignore, package.json, package-lock.json, README.md, .husky, .github'

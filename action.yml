@@ -4,7 +4,7 @@ inputs:
   custom-prompt:
     description: 'Prompt to feed to ChatGPT'
     required: false
-    default: 'Given all the parts. Summarize the changes in 300 words or less'
+    default: 'Combining each part. Summarize the changes in 300 words or less based on the pull request title and file changes.'
   frequency-penalty:
     description: 'Reduces the probability of words that have already been generated'
     required: false
@@ -22,7 +22,7 @@ inputs:
   max-response-tokens:
     description: 'The maximum number of tokens allowed in the response'
     required: false
-    default: 256
+    default: 512
   model: 
     description: 'The model to use for the AI'
     required: false
