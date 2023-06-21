@@ -22,7 +22,7 @@ inputs:
   max-response-tokens:
     description: 'The maximum number of tokens allowed in the response'
     required: false
-    default: 256
+    default: 2048
   model: 
     description: 'The model to use for the AI'
     required: false
