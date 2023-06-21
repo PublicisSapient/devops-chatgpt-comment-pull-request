@@ -6,7 +6,7 @@ This repository contains a Github action that generates explanations of changes 
 - A `token limit` for both `prompt` and `response` can be set to control costs. In the event that the token limit is reached a comment will not be created. The default limit is `10000` prompt tokens and `512` response tokens. For PRs with lots of changes, this limit will most likely need to be increased.
 - Prompts can be segmented into `multipe requests` to OpenAIApi and collated into a single response by setting the input `segment-size`, defaults to 3096.
 - The comment will be generated based on the `Pull Request Title` and a comparison of the file changes between the `Head SHA` of the pull request branch and the `Base SHA` (I.E Main branch).
-- A `custom prompt` can be configured allowing for flexibiliy in the response from ChatGPT. This can be configured via the input `custom-prompt`. The default value is `Given all the parts. Summarize the changes in 300 words or less`.
+- A `custom prompt` can be configured allowing for flexibiliy in the response from ChatGPT. This can be configured via the input `custom-prompt`. The default value is `Combining each part. Summarize the changes in 300 words or less based on the pull request title and file changes.`.
 - Specific files and paths can be ignored when generating the changes by configuring the input `ignore-paths`.
 - The model used can be configured by setting the input `model`. The default model is `gpt-3.5-turbo`
 
@@ -36,7 +36,7 @@ This action will retrieve the pull request information and generate an explanati
 
 | Name | Description | Default | Required |
 | --- | --- | --- | --- |
-| `custom-prompt` | The prompt to feed to ChatGPT | Given all the parts. Summarize the changes in 300 words or less | false |
+| `custom-prompt` | The prompt to feed to ChatGPT | Combining each part. Summarize the changes in 300 words or less based on the pull request title and file changes. | false |
 | `frequency-penalty` | Reduces the probability of words that have already been generated | `0` | false |
 | `github-token` | `GITHUB_TOKEN` (permissions `contents: write` and `pull-requests: write`) or a `repo` scoped [Personal Access Token (PAT)](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token). | `GITHUB_TOKEN` | true |
 | `ignore-paths` | Comma separated list of paths and files those needs to be ignored from explanation | `All files are scanned if nothing is provided` | false |
