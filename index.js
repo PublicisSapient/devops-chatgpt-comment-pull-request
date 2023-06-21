@@ -120,10 +120,6 @@ try {
       const headCommitSha = pullRequestData.head.sha;
       const baseCommitSha = pullRequestData.base.sha;
 
-      console.log('Head Sha:', headCommitSha);
-      console.log('Base Sha:', baseCommitSha);
-
-
       return Promise.all([
         headCommitSha,
         baseCommitSha,
