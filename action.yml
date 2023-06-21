@@ -4,7 +4,7 @@ inputs:
   custom-prompt:
     description: 'Prompt to feed to ChatGPT'
     required: false
-    default: 'Based on the pull request title and file changes in each part. Summarize the differences in 300 words or less'
+    default: 'Combining each part. Summarize the changes in 300 words or less based on the pull request title and file changes.'
   frequency-penalty:
     description: 'Reduces the probability of words that have already been generated'
     required: false
