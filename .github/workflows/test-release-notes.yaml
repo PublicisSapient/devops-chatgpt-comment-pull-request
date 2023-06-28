@@ -1,0 +1,22 @@
+name: Test Release Notes
+on:
+  workflow_dispatch:
+    inputs:
+      release-tag:
+        description: 'The tag of the release to add notes'
+        required: true
+        type: string
+
+jobs:
+  chatgptComment:
+    runs-on: ubuntu-latest
+    name: Create Release Notes
+    steps:
+      - name: Create Release Notes
+        uses: ps-aartread-org/chatgpt-release-notes@atreadwell
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          open-api-key: ${{ secrets.CHATGPT_API_KEY }}
+          max-prompt-tokens: '50000'
+          ignore-paths: 'package.json, package-lock.json'
+          release-tag: ${{ inputs.release-tag }}
