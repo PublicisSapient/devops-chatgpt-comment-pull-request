@@ -18,5 +18,5 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           open-api-key: ${{ secrets.CHATGPT_API_KEY }}
           max-prompt-tokens: '50000'
-          ignore-paths: 'package.json, package-lock.json'
+          ignore-paths: 'package.json, package-lock.json, node_modules'
           release-tag: ${{ inputs.release-tag }}
