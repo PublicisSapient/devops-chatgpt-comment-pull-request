@@ -181,53 +181,54 @@ try {
       }
 
       // Filter out ignored files and paths
-      const filteredChanges = JSON.stringify(fileChanges.filter(change => !shouldIgnore(change.filename)));
-      const changes = (`Pull Request Title: ${pullRequestTitle}\n\nFile Changes: ${filteredChanges}` );
+      // const filteredChanges = JSON.stringify(fileChanges.filter(change => !shouldIgnore(change.filename)));
+      const filteredChanges = JSON.stringify(fileChanges.filter(change => console.log(change.filename)));
+      // const changes = (`Pull Request Title: ${pullRequestTitle}\n\nFile Changes: ${filteredChanges}` );
 
-      // Calculate the token count of the prompt
-      const tokens = encode(JSON.stringify(changes)).length;
-      const maxPromptTokens = core.getInput('max-prompt-tokens'); // Maximum prompt tokens allowed
+      // // Calculate the token count of the prompt
+      // const tokens = encode(JSON.stringify(changes)).length;
+      // const maxPromptTokens = core.getInput('max-prompt-tokens'); // Maximum prompt tokens allowed
 
-      // Print Prompt Token Count & Max Prompt Tokens
-      console.log('Prompt Token Count:', tokens);
-      console.log('Max Prompt Tokens: ', maxPromptTokens);
+      // // Print Prompt Token Count & Max Prompt Tokens
+      // console.log('Prompt Token Count:', tokens);
+      // console.log('Max Prompt Tokens: ', maxPromptTokens);
 
-      if (tokens > maxPromptTokens || (ignorePathsInput && filteredChanges.length === 0)) {
-        console.log('Skipping Comment due to Max Tokens or No Changes after Filtering');
-        const explanation = 'skipping comment';
-        return explanation;
-      } else {
-        return generateExplanation(changes);
-      }
+      // if (tokens > maxPromptTokens || (ignorePathsInput && filteredChanges.length === 0)) {
+      //   console.log('Skipping Comment due to Max Tokens or No Changes after Filtering');
+      //   const explanation = 'skipping comment';
+      //   return explanation;
+      // } else {
+      //   return generateExplanation(changes);
+      // }
     })
-    .then((explanation) => {
-      // Create the GitHub Comment
-      console.log(explanation.split('-').join('\n'));
+    // .then((explanation) => {
+    //   // Create the GitHub Comment
+    //   console.log(explanation.split('-').join('\n'));
 
-      // Create a comment with the generated explanation
-      const octokit = new Octokit({ auth: token });
-      const comment = `Explanation of Changes (Generated via OpenAI):\n\n${JSON.stringify(explanation)}`;
+    //   // Create a comment with the generated explanation
+    //   const octokit = new Octokit({ auth: token });
+    //   const comment = `Explanation of Changes (Generated via OpenAI):\n\n${JSON.stringify(explanation)}`;
 
-      async function createComment() {
-        const newComment = await octokit.issues.createComment({
-          ...githubContext.repo,
-          issue_number: githubContext.issue.number,
-          body: comment
-        });
+    //   async function createComment() {
+    //     const newComment = await octokit.issues.createComment({
+    //       ...githubContext.repo,
+    //       issue_number: githubContext.issue.number,
+    //       body: comment
+    //     });
 
-        console.log(`Comment added: ${newComment.data.html_url}`);
-      }
+    //     console.log(`Comment added: ${newComment.data.html_url}`);
+    //   }
 
-      // Create Comment if Explanation does not contain 'skipping comment' due to max tokens limit
-      if (explanation == 'skipping comment') {
-        console.log('Skipping Comment due to Max Tokens or No Changes after Filtering');
-      } else {
-        createComment();
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-    });
+    //   // Create Comment if Explanation does not contain 'skipping comment' due to max tokens limit
+    //   if (explanation == 'skipping comment') {
+    //     console.log('Skipping Comment due to Max Tokens or No Changes after Filtering');
+    //   } else {
+    //     createComment();
+    //   }
+    // })
+    // .catch((error) => {
+    //   console.error(error);
+    // });
 
 } catch (error) {
   core.setFailed(error.message);
