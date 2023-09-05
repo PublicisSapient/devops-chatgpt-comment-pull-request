@@ -27,7 +27,7 @@ Before running this, ensure you have the following:
 
 ```yml
       - name: ChatGpt Comment
-        uses: ps-aartread-org/chatgpt-comment-pull-request@main
+        uses: PublicisSapient/devops-chatgpt-comment-pull-request@main
 ```
 
 This action will retrieve the pull request information and generate an explanation of the changes using the OpenAI API. If the explanation exceeds the maximum token limit or there are no changes after filtering, a comment will not be created.
@@ -161,7 +161,7 @@ jobs:
     name: Add Comment
     steps:
       - name: Add Comment
-        uses: ps-aartread-org/chatgpt-comment-pull-request@main
+        uses: PublicisSapient/devops-chatgpt-comment-pull-request@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           open-api-key: ${{ secrets.CHATGPT_API_KEY }}
